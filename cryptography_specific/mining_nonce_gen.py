@@ -2,7 +2,9 @@ import hashlib
 import json
 import time
 
-with open('settings.json') as f:
+SETTINGS_JSON_PATH = './settings.json'
+
+with open(SETTINGS_JSON_PATH) as f:
 	settings = json.load(fp=f)
 
 nonce_difficulty = int(settings["nonce_difficulty"])

@@ -6,6 +6,7 @@ from coincurve import PrivateKey
 from dotenv import load_dotenv
 import os
 import websocket 
+from cryptography_specific.mining_nonce_gen import mine_a_nonce 
 
 load_dotenv()
 
@@ -13,10 +14,18 @@ PRIVATE_KEY = os.getenv("PRIVATE_KEY")
 pk_SIGNER = PrivateKey(bytes.fromhex(PRIVATE_KEY))
 PUBLIC_KEY = pk_SIGNER.public_key_xonly.format().hex()
 
-content = ""
+content = "this ain't a bot"
 created_at = int(time.time())
 kind = 20000
-tags = [['g', 'wd'], ['n', 'glazer']]
+tags = [['g', 'wd'], ['n', 'glazer 🇵🇭 (bot)']]
+
+# created_at, tags, event_id = mine_a_nonce(	pubkey=PUBLIC_KEY, 
+# 											kind=kind,
+# 											tags=tags,
+# 											content=content
+# 										)
+
+
 
 serialization_list_for_id = [0,
 						PUBLIC_KEY,

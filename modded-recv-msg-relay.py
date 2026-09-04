@@ -27,7 +27,7 @@ async def client(relay):
                 open_timeout=20,
             ) as websocket:
 
-                # print(f"Connected to {relay}")
+                #print(f"Connected to {relay}")
                 await websocket.send(SUBSC_RELAY_MESSAGE)
                 delay = 5
 
@@ -35,8 +35,10 @@ async def client(relay):
                 msg = await websocket.recv()
                 message_jsonify = json.loads(msg)
                 try:
-                	if message_jsonify[2]['tags'][1][1] == 'glazer':
-                		print(message_jsonify)
+                    #print(message_jsonify[2]['tags'][1][1])
+                    if message_jsonify[2]['tags'][1][1] == 'glazer':
+                        print
+                        print(message_jsonify)
                 except: pass
 
 
