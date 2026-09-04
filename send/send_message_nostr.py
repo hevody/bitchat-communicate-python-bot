@@ -25,8 +25,6 @@ tags = [['g', 'wd'], ['n', 'glazer 🇵🇭 (bot)']]
 # 											content=content
 # 										)
 
-
-
 serialization_list_for_id = [0,
 						PUBLIC_KEY,
 						created_at,

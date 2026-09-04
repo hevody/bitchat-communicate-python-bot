@@ -2,19 +2,6 @@ import json
 import logging
 import requests
 
-with open('settings.json') as f:
-  settings = json.load(fp=f)
-
-debug = settings["debug"]
-
-GENERAL_HEADERS = settings["GENERAL_HEADERS"]
-BITCHAT_EXPLORER_API = settings["BITCHAT_EXPLORER_API"]
-
-if debug:
-  logging.basicConfig(level=logging.INFO, format="%(message)s")
-else:
-  logging.disable(logging.CRITICAL)
-
 def perform_get_request(url: str, specific_headers: str) -> dict | str:
   logging.info('[*] Performing a GET request')
   response = requests.get(url, headers=specific_headers)
@@ -35,7 +22,18 @@ def get_the_relays(bce_metadata: list) -> list:
   unique_relays = list(set(relays))  
   return unique_relays
 
-if __name__ == '__main__':
-  bitLiteralChats = perform_get_request(url=bce_API, specific_headers=general_headers)
+def main():
+  pass
 
+if __name__ == '__main__':
+  with open('settings.json') as f:
+    settings = json.load(fp=f)
+
+  debug = settings["debug"]
+
+  GENERAL_HEADERS = settings["GENERAL_HEADERS"]
+  BITCHAT_EXPLORER_API = settings["BITCHAT_EXPLORER_API"]
+
+  bitLiteralChats = perform_get_request(url=BITCHAT_EXPLORER_API, specific_headers=GENERAL_HEADERS)
+  print(bitLiteralChats)
   
