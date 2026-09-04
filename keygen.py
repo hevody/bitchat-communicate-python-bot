@@ -1,8 +1,9 @@
 from coincurve import PrivateKey
 
-private_key = PrivateKey().secret.hex()
-input(private_key.secret.hex())
-public_key = private_key.public_key_xonly.hex()
 
-print(f"Private key: {private_key.secret.hex()}")
-print(f"Public key:  {public_key}")
+PRIVATE_KEY_FUNCTION_CALL = PrivateKey()
+PRIVATE_KEY = PRIVATE_KEY_FUNCTION_CALL.secret.hex()
+PUBLIC_KEY = PRIVATE_KEY_FUNCTION_CALL.public_key_xonly.format().hex()
+
+print(f"Private key: {PRIVATE_KEY}")
+print(f"Public key:  {PUBLIC_KEY}")
