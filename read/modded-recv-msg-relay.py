@@ -5,7 +5,7 @@ from websockets.exceptions import (	ConnectionClosed,
 									InvalidStatus)
 import websockets
 
-with open('settings.json') as f:
+with open('config.json') as f:
 	settings = json.load(fp=f)
 
 RELAYS = settings["RELAYS"]
@@ -35,7 +35,8 @@ async def client(relay):
                 msg = await websocket.recv()
                 message_jsonify = json.loads(msg)
                 try:
-                    #print(message_jsonify[2]['tags'][1][1])
+                    if message_jsonify[2]['tags'][0][1] == 'wd':
+                        print(message_jsonify)
                     if message_jsonify[2]['tags'][1][1] == 'glazer':
                         print
                         print(message_jsonify)

@@ -23,10 +23,7 @@ def get_the_relays(bce_metadata: list) -> list:
   return unique_relays
 
 def main():
-  pass
-
-if __name__ == '__main__':
-  with open('settings.json') as f:
+  with open('config.json') as f:
     settings = json.load(fp=f)
 
   debug = settings["debug"]
@@ -35,5 +32,9 @@ if __name__ == '__main__':
   BITCHAT_EXPLORER_API = settings["BITCHAT_EXPLORER_API"]
 
   bitLiteralChats = perform_get_request(url=BITCHAT_EXPLORER_API, specific_headers=GENERAL_HEADERS)
-  print(bitLiteralChats)
+  return bitLiteralChats
+
+if __name__ == '__main__':
+  main()
+  
   

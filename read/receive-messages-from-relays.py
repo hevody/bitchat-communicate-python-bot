@@ -13,6 +13,7 @@ SUBSC_RELAY_MESSAGE = json.dumps([
 	{"kinds": [20000]}
 ])
 
+
 async def client(relay: str):
 	async for websocket in connect(relay):
 		try:
