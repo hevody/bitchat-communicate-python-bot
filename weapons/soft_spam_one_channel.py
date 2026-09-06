@@ -15,7 +15,7 @@ if __name__ == '__main__':
 		config = json.load(fp=f)
 	
 	# relays = config["RELAYS"]
-	relays = ["wss://nos.lol"]
+	relays = ["wss://relay01.lnfi.network:443"]
 	enable_proof_of_work = config["enable_proof_of_work"]
 	PRIVATE_KEY = os.getenv("PRIVATE_KEY")
 
@@ -33,10 +33,8 @@ if __name__ == '__main__':
 					content=content,
 					proof_of_work=enable_proof_of_work, 
 					relays=relays)
-		# time.sleep(0.01)
 
-	if response[0] == 'OK':
-		print("[+] Message was sent successfully, erp...!") 
+
 
 
 

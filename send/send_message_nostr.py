@@ -48,13 +48,13 @@ def event_generator(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof
 	signature = pk_SIGNER.sign_schnorr(bytes.fromhex(event_id)).hex()
 
 	event = {
-		"id": event_id,
-		"pubkey": PUBLIC_KEY,
-		"created_at": created_at,
-		"kind": kind,
-		"tags": tags,
 		"content": content,
-		"sig": signature
+		"created_at": created_at,
+		"id": event_id,
+		"kind": kind,
+		"pubkey": PUBLIC_KEY,
+		"sig": signature,
+		"tags": tags,
 	}
 
 	return event
@@ -63,7 +63,6 @@ def send_event_to_relay(event: dict, relays: list) -> list:
 	for relay in relays:
 		try:
 			ws = websocket.create_connection(relay)
-			# ws = websocket.create_connection('wss://nos.lol')
 			ws.send(json.dumps(["EVENT", event]))
 			response = ws.recv()
 			print(response)
@@ -72,14 +71,13 @@ def send_event_to_relay(event: dict, relays: list) -> list:
 				continue
 			else:
 				ws.close()
-				break
+				return json.loads(response)
 		except KeyboardInterrupt:
 			exit()
-		except Exception as e:
-			print(e) 
+		except Exception as e: 
+			return e
 			continue
 
-	return json.loads(response)
 
 def send(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof_of_work: bool, relays: list):
 	event_created = event_generator(PRIVATE_KEY=PRIVATE_KEY,
@@ -124,7 +122,7 @@ if __name__ == '__main__':
 					proof_of_work=enable_proof_of_work, 
 					relays=relays)
 
-
+	print(response)
 	if response[0] == 'OK':
 		print("[+] Message was sent successfully, erp...!") 
 
