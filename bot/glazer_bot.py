@@ -17,12 +17,22 @@ tags = config["BOT_CONFIG"]["tags"]
 message = "wassup pipinos"
 enable_proof_of_work = config["enable_proof_of_work"]
 relays = config["RELAYS"]
+PH_GEOHASHES = config["BOT_CONFIG"]["PHILIPPINE_GEOHASHES"]
 
-def scan_vicinity():
-	fetched_data = read_api.main()
+def scan_vicinity(fetched_data) -> list:
+	
+	ph_geohash_with_users = {}
 	for fetched_datum in fetched_data:
-		print([fetched_datum["geohash"], fetched_datum["username"]]) 
+		for PH_GEOHASH_INITIALS in PH_GEOHASHES:
 
+			if fetched_datum["geohash"] == 'wd':
+				continue
+
+			if fetched_datum["geohash"].startswith(PH_GEOHASH_INITIALS):
+				ph_geohash_with_users[fetched_datum["geohash"]] = ph_geohash_with_users.get(fetched_datum["geohash"], []) + [fetched_datum["username"]]
+
+	print(ph_geohash_with_users)
+				
 def main():
 
 	# response = sender.send(	PRIVATE_KEY=PRIVATE_KEY,
@@ -33,8 +43,9 @@ def main():
 	# 						relays=relays)
 	# print(response)
 
-	scan_vicinity()
-
+	
+	fetched_data_from_api = read_api.main()
+	active_geohashes_ph = scan_vicinity(fetched_data_from_api)
 
 
 

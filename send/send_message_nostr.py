@@ -92,8 +92,7 @@ def send(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof_of_work: b
 
 	return outbound_send_result
 
-if __name__ == '__main__':
-
+def load_necessary_data() -> tuple[list, bool, str]:
 	load_dotenv()
 	with open("config.json") as f:
 		config = json.load(fp=f)
@@ -101,13 +100,21 @@ if __name__ == '__main__':
 	relays = config["RELAYS"]
 	enable_proof_of_work = config["enable_proof_of_work"]
 	PRIVATE_KEY = os.getenv("PRIVATE_KEY")
-	PADDING = 10
-	tags = []
+
+	return relays, enable_proof_of_work, PRIVATE_KEY
+
+if __name__ == '__main__':
+
+	relays, enable_proof_of_work, PRIVATE_KEY = load_necessary_data()
+
+	
 
 
 	print(art.ascii_art_temple())
 	print(art.ascii_art_text())
 
+	tags = []
+	PADDING = 10
 	geohash = input("geohash".ljust(PADDING) + '> ')
 	tags.append(["g", geohash])
 	username = input("username".ljust(PADDING) + '> ')
@@ -122,10 +129,10 @@ if __name__ == '__main__':
 					proof_of_work=enable_proof_of_work, 
 					relays=relays)
 
-	print(response)
-	if response[0] == 'OK':
+	if response[2] != False:
 		print("[+] Message was sent successfully, erp...!") 
-
+	else:
+		print(response)
 
 
 

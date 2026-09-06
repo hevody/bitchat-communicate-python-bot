@@ -17,7 +17,7 @@ import string
 # Define the length of your random name
 length = 10
 # Pool of letters (upper and lower case) and digits
-chars = 'bcdefghkmnpqrstuvwxyz'
+chars = 'bcdefghkmnpqrstuvwxyz1234567890'
 # Generate random string
 random_name = "".join(random.choices(chars, k=length))
 random_message = "".join(random.choices(chars, k=length))
