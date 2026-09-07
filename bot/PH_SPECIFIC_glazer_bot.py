@@ -17,6 +17,8 @@ tags = config["BOT_CONFIG"]["PH"]["tags"]
 message = "wassup pipinos"
 PH_GEOHASHES = config["BOT_CONFIG"]["PH"]["PHILIPPINE_GEOHASHES"]
 BLOCKED_USERNAMES = config["BOT_CONFIG"]["BLOCKED_USERNAMES"]
+BLOCKED_GEOHASHES = config["BOT_CONFIG"]["BLOCKED_GEOHASHES"]
+CATEGORY_DATABASE = config["BOT_CONFIG"]["CATEGORY_DATABASE"]
 
 def scan_vicinity(fetched_data) -> list:
 	
@@ -58,7 +60,34 @@ def send_vicinity(vicinity_geohashes: dict, relays, enable_proof_of_work, PRIVAT
 						relays=relays)
 		print(response)
 
-	
+def frequency_geohash(fetched_data):
+	geohash_with_frequency= {}
+	for fetched_datum in fetched_data:
+		if fetched_datum["geohash"] in BLOCKED_GEOHASHES:
+			continue
+		geohash_with_frequency[fetched_datum["channel"]] = geohash_with_frequency.get(fetched_datum["channel"], 0) + 1
+
+	descending_geohash_with_frequency = dict(sorted(geohash_with_frequency.items(), key=lambda item: item[1], reverse=True))
+
+	return descending_geohash_with_frequency
+
+def content_builder(geohash_with_frequency):
+	heading_geohash_frequency = "\nBisitahin niyo rin ang mga geohash na ito:\n"
+	body_geohash_frequency = ""
+
+	five = 0
+	for geohash in geohash_with_frequency:
+		if five == 5:
+			break
+		if geohash in CATEGORY_DATABASE:
+			category_value_of_geohash = CATEGORY_DATABASE[geohash]
+			geohash_and_category = f"{geohash} ({category_value_of_geohash})"
+			body_geohash_frequency += f"{geohash_and_category.ljust(15)}: {geohash_with_frequency[geohash]} chats\n"
+		else:
+			body_geohash_frequency += f"{geohash.ljust(15)}: {geohash_with_frequency[geohash]} chats\n"
+		five += 1
+	geohash_frequency_message = heading_geohash_frequency + body_geohash_frequency
+	return geohash_frequency_message
 
 def main_bot():
 	relays, enable_proof_of_work, PRIVATE_KEY = main.load_necessary_data()	
@@ -72,12 +101,22 @@ def main_bot():
 
 	
 	fetched_data_from_api = read_api.main()
-	active_geohashes_ph = scan_vicinity(fetched_data_from_api)
-	relays = config["RELAYS"]
-	send_vicinity(active_geohashes_ph, relays, enable_proof_of_work, PRIVATE_KEY)
 
+	# active_geohashes_ph = scan_vicinity(fetched_data_from_api)
+	# relays = config["RELAYS"]
+	# send_vicinity(active_geohashes_ph, relays, enable_proof_of_work, PRIVATE_KEY)
 
+	frequent_geohash = frequency_geohash(fetched_data_from_api)
+	#print(frequent_geohash)
 
+	message = content_builder(frequent_geohash)
+	response = sender.send(	PRIVATE_KEY=PRIVATE_KEY,
+						kind=20000,
+						tags=tags,
+						content=message,
+						proof_of_work=enable_proof_of_work, 
+						relays=relays)
+	print(response)
 
 if __name__ == '__main__':
 	main_bot()

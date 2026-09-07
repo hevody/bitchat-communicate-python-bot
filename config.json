@@ -11,13 +11,20 @@
   "enable_proof_of_work": true,
   "BOT_CONFIG": {
     "PH": {
-      "tags": [["g", "wd"], ["n", "Glazer 🇵🇭 (bot)"]],
+      "tags": [["g", "wd"], ["t", "teleport"], ["n", "Glazer 🇵🇭 (bot)"]],
       "PHILIPPINE_GEOHASHES": ["we", "wg", "wd", "wf", "w9", "wc", "w8", "wb"]
       
     },
     "GEOHASHES_ACCEPTED_LETTERS_AND_NUMBERS": "bcdefghkmnpqrstuvwxyz1234567890",
     "RELAYS": ["wss://relay01.lnfi.network:443"],
-    "BLOCKED_USERNAMES": ["bitbot", "Glazer 🇵🇭 (bot)"]
+    "BLOCKED_USERNAMES": ["bitbot", "Glazer 🇵🇭 (bot)"],
+    "BLOCKED_GEOHASHES": ["hrmpzfv0z5z", "6g"],
+    "CATEGORY_DATABASE": {
+      "#st": "Arabs",
+      "#wd": "Filipinos",
+      "#9q": "Americans",
+      "#u2": "Europeans"
+    }
   },
   "pre-made_event_for_weapons": {
     "tags": [["g", "wd"], ["t", "teleport"], ["n", "glazer bot"]],
