@@ -3,7 +3,6 @@ import time
 import hashlib
 import websockets
 from coincurve import PrivateKey
-from dotenv import load_dotenv
 import os
 import websocket 
 
@@ -11,6 +10,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cryptography_specific.mining_nonce_gen as mine_pow
 import art.art_resource as art
+import main
 
 def event_generator(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof_of_work: bool):
 	pk_SIGNER = PrivateKey(bytes.fromhex(PRIVATE_KEY))
@@ -92,20 +92,9 @@ def send(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof_of_work: b
 
 	return outbound_send_result
 
-def load_necessary_data() -> tuple[list, bool, str]:
-	load_dotenv()
-	with open("config.json") as f:
-		config = json.load(fp=f)
-	
-	relays = config["RELAYS"]
-	enable_proof_of_work = config["enable_proof_of_work"]
-	PRIVATE_KEY = os.getenv("PRIVATE_KEY")
-
-	return relays, enable_proof_of_work, PRIVATE_KEY
-
 if __name__ == '__main__':
 
-	relays, enable_proof_of_work, PRIVATE_KEY = load_necessary_data()
+	relays, enable_proof_of_work, PRIVATE_KEY = main.load_necessary_data()
 
 	
 

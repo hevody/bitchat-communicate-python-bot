@@ -1,17 +1,18 @@
 import send.send_message_nostr as sender
 import random
 import json
+import main
 
 with open('config.json') as f:
 	config = json.load(fp=f)
 
 chars = config["BOT_CONFIG"]["GEOHASHES_ACCEPTED_LETTERS_AND_NUMBERS"]
-PH_GEOHASHES = config["BOT_CONFIG"]["PHILIPPINE_GEOHASHES"]
+PH_GEOHASHES = config["BOT_CONFIG"]["PH"]["PHILIPPINE_GEOHASHES"]
 
 
 if __name__ == '__main__':
 	tags = config["TESTS"]["tags"]
-	relays, enable_proof_of_work, PRIVATE_KEY = sender.load_necessary_data()
+	relays, enable_proof_of_work, PRIVATE_KEY = main.load_necessary_data()
 
 	for _ in range(10):
 		ph_geohash = random.choice(PH_GEOHASHES)
@@ -27,6 +28,7 @@ if __name__ == '__main__':
 						proof_of_work=enable_proof_of_work, 
 						relays=relays)
 
+		print(response)
 		if response[2] != False:
 			print("[+] Message was sent successfully, erp...!") 
 		else:

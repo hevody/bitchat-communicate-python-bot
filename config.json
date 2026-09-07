@@ -10,16 +10,20 @@
   "nonce_difficulty": "15",
   "enable_proof_of_work": true,
   "BOT_CONFIG": {
-    "tags": [["g", "wd"], ["n", "oiewootwitw"]],
-    "PHILIPPINE_GEOHASHES": ["we", "wg", "wd", "wf", "w9", "wc", "w8", "wb"],
+    "PH": {
+      "tags": [["g", "wd"], ["n", "Glazer 🇵🇭 (bot)"]],
+      "PHILIPPINE_GEOHASHES": ["we", "wg", "wd", "wf", "w9", "wc", "w8", "wb"]
+      
+    },
     "GEOHASHES_ACCEPTED_LETTERS_AND_NUMBERS": "bcdefghkmnpqrstuvwxyz1234567890",
-    "RELAY": ["wss://relay01.lnfi.network:443"]
+    "RELAYS": ["wss://relay01.lnfi.network:443"],
+    "BLOCKED_USERNAMES": ["bitbot", "Glazer 🇵🇭 (bot)"]
   },
   "pre-made_event_for_weapons": {
     "tags": [["g", "wd"], ["t", "teleport"], ["n", "glazer bot"]],
     "content": "e di tipaklong"
   },
   "TESTS": {
-    "tags": [[], ["t", "teleport"], ["n", "Welcome to the Philippines"]]
+    "tags": [[], ["t", "teleport"], ["n", "Penelope"]]
   }
 }
