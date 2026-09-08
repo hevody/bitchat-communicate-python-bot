@@ -1,5 +1,6 @@
 import json
 from dotenv import load_dotenv
+import logging
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -58,7 +59,6 @@ def send_vicinity(vicinity_geohashes: dict, relays, enable_proof_of_work, PRIVAT
 						content=message,
 						proof_of_work=enable_proof_of_work, 
 						relays=relays)
-		print(response)
 
 def frequency_geohash(fetched_data):
 	geohash_with_frequency= {}
@@ -72,7 +72,7 @@ def frequency_geohash(fetched_data):
 	return descending_geohash_with_frequency
 
 def content_builder(geohash_with_frequency):
-	heading_geohash_frequency = "\nBisitahin niyo rin ang mga geohash na ito:\n"
+	heading_geohash_frequency = "\nBisitahin niyo rin ang mga geohashes na ito:\n"
 	body_geohash_frequency = ""
 
 	five = 0
@@ -89,6 +89,9 @@ def content_builder(geohash_with_frequency):
 	geohash_frequency_message = heading_geohash_frequency + body_geohash_frequency
 	return geohash_frequency_message
 
+def news_rss_reader():
+	pass
+
 def main_bot():
 	relays, enable_proof_of_work, PRIVATE_KEY = main.load_necessary_data()	
 	# response = sender.send(	PRIVATE_KEY=PRIVATE_KEY,
@@ -99,24 +102,26 @@ def main_bot():
 	# 						relays=relays)
 	# print(response)
 
-	
 	fetched_data_from_api = read_api.main()
 
-	# active_geohashes_ph = scan_vicinity(fetched_data_from_api)
-	# relays = config["RELAYS"]
-	# send_vicinity(active_geohashes_ph, relays, enable_proof_of_work, PRIVATE_KEY)
+	active_geohashes_ph = scan_vicinity(fetched_data_from_api)
+	relays = config["RELAYS"]
+	send_vicinity(active_geohashes_ph, relays, enable_proof_of_work, PRIVATE_KEY)
 
 	frequent_geohash = frequency_geohash(fetched_data_from_api)
-	#print(frequent_geohash)
 
 	message = content_builder(frequent_geohash)
+	relays = config["BOT_CONFIG"]["RELAYS"]
+	
+	tags[0] = ["g", "wd"]
 	response = sender.send(	PRIVATE_KEY=PRIVATE_KEY,
 						kind=20000,
 						tags=tags,
 						content=message,
 						proof_of_work=enable_proof_of_work, 
 						relays=relays)
-	print(response)
+
+
 
 if __name__ == '__main__':
 	main_bot()

@@ -24,12 +24,18 @@ def get_the_relays(bce_metadata: list) -> list:
 
 def main():
   with open('config.json') as f:
-    settings = json.load(fp=f)
+    config = json.load(fp=f)
 
-  debug = settings["debug"]
+  DEBUG = config["DEBUG"]
 
-  GENERAL_HEADERS = settings["GENERAL_HEADERS"]
-  BITCHAT_EXPLORER_API = settings["BITCHAT_EXPLORER_API"]
+  if DEBUG:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+  else:
+    logging.disable(logging.CRITICAL)
+
+
+  GENERAL_HEADERS = config["GENERAL_HEADERS"]
+  BITCHAT_EXPLORER_API = config["BITCHAT_EXPLORER_API"]
 
   bitLiteralChats = perform_get_request(url=BITCHAT_EXPLORER_API, specific_headers=GENERAL_HEADERS)
   return bitLiteralChats

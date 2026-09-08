@@ -5,6 +5,8 @@ import websockets
 from coincurve import PrivateKey
 import os
 import websocket 
+import logging
+import time
 
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,8 +17,6 @@ import main
 def event_generator(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof_of_work: bool):
 	pk_SIGNER = PrivateKey(bytes.fromhex(PRIVATE_KEY))
 	PUBLIC_KEY = pk_SIGNER.public_key_xonly.format().hex()
-
-	#tags.append(["glub", "v", "ce3a646"])
 
 	if proof_of_work: 
 		created_at, tags, event_id = mine_pow.mine_a_nonce(	pubkey=PUBLIC_KEY, 
@@ -63,9 +63,11 @@ def send_event_to_relay(event: dict, relays: list) -> list:
 	for relay in relays:
 		try:
 			ws = websocket.create_connection(relay)
+			# ws.send(json.dumps(["EVENT", event]))
 			ws.send(json.dumps(["EVENT", event]))
 			response = ws.recv()
 			print(response)
+
 			if json.loads(response)[0] != "OK":
 				ws.close()
 				continue
@@ -78,14 +80,15 @@ def send_event_to_relay(event: dict, relays: list) -> list:
 			return e
 			continue
 
-
 def send(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof_of_work: bool, relays: list):
+
 	event_created = event_generator(PRIVATE_KEY=PRIVATE_KEY,
 									kind=kind,
 									tags=tags,
 									content=content,
 									proof_of_work=proof_of_work,
 									)
+	print(event_created)
 
 	outbound_send_result = send_event_to_relay(event=event_created,
 										relays=relays)
@@ -95,9 +98,6 @@ def send(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof_of_work: b
 if __name__ == '__main__':
 
 	relays, enable_proof_of_work, PRIVATE_KEY = main.load_necessary_data()
-
-	
-
 
 	print(art.ascii_art_temple())
 	print(art.ascii_art_text())
@@ -111,6 +111,28 @@ if __name__ == '__main__':
 	message = input("send".ljust(PADDING) + '> ')
 
 
+	# with open('config.json') as f:
+	# 	config = json.load(fp=f)
+	# relays = config["RELAYS"]
+
+	# ### showing presence ###
+	# while True:
+	# 	show_presence = send(PRIVATE_KEY=PRIVATE_KEY,
+	# 					kind=20001,
+	# 					tags=[tags[0]],
+	# 					content="",
+	# 					proof_of_work=False, 
+	# 					relays=relays)
+	# 	time.sleep(5)
+
+	show_presence = send(PRIVATE_KEY=PRIVATE_KEY,
+						kind=20001,
+						tags=[tags[0]],
+						content="",
+						proof_of_work=False, 
+						relays=relays)
+	
+
 	response = send(PRIVATE_KEY=PRIVATE_KEY,
 					kind=20000,
 					tags=tags,
@@ -118,6 +140,7 @@ if __name__ == '__main__':
 					proof_of_work=enable_proof_of_work, 
 					relays=relays)
 
+	print(response)
 	if response[2] != False:
 		print("[+] Message was sent successfully, erp...!") 
 	else:

@@ -47,3 +47,7 @@ def ascii_art_text():
     usap tayo, ano tara?
   '''
 	return BOLD_ANSI + USAP_NOSTR_CLIENT + ANSI_RESET
+
+def show_headings():
+  print(ascii_art_temple())
+  print(ascii_art_text())
