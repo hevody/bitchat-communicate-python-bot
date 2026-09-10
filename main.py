@@ -9,7 +9,8 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cryptography_specific.generate_key as keygen
 
-from dotenv import (load_dotenv,
+from dotenv import (
+					load_dotenv,
 					find_dotenv,
 					set_key)
 from coincurve import PrivateKey
@@ -20,6 +21,8 @@ import pygeohash
 import csv
 import math
 import requests
+from datetime import datetime
+import humanize
 
 DOTENV_PATH = find_dotenv()
 
@@ -202,7 +205,6 @@ class Config:
   	}
 		self.BITCHAT_EXPLORER_API = "https://bitchatexplorer.com/api/messages?limit=1000"
 
-
 class Sender:
 	def __init__(self):
 		self.cryptography = CryptographySpecific()
@@ -349,22 +351,91 @@ class Reader:
 
 class Bot:
 	def __init__(self):
-		reader = Reader()
-		fetched_data_from_api = reader.main()
-		print(fetched_data_from_api)
+		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd"]
+		self.GEOHASH_CATEGORY_DATABASE = {
+      "#st": "Egyptians",
+      "#wd": "Filipinos",
+      "#9q": "Americans",
+      "#u2": "Europeans",
+      "#xn": "Japanese",
+      "ws": "Chinese",
+      "wt": "Chinese",
+      "d3": "Latinos"
+    }
 
-	def frequency_geohash(self, fetched_data):
+		
+
+	def frequency_geohash(self, fetched_data) -> dict:
 		geohash_with_frequency= {}
 		for fetched_datum in fetched_data:
-			if fetched_datum["geohash"] in BLOCKED_GEOHASHES:
+			if fetched_datum["geohash"] in self.BLOCKED_GEOHASHES:
 				continue
 			geohash_with_frequency[fetched_datum["channel"]] = geohash_with_frequency.get(fetched_datum["channel"], 0) + 1
 
 		descending_geohash_with_frequency = dict(sorted(geohash_with_frequency.items(), key=lambda item: item[1], reverse=True))
+		desc_gh_w_frequency_list_value = {key: [value] for key, value in descending_geohash_with_frequency.items()}
 
-		return descending_geohash_with_frequency
+		return desc_gh_w_frequency_list_value
+
+	
+	def make_body_frecency(self, geohash_with_frecency):
+			body_geohash_frequency = ""
+			five = 0
+			for geohash in geohash_with_frequency:
+				if five == 5:
+					break
+				if geohash in self.GEOHASH_CATEGORY_DATABASE:
+					category_value_of_geohash = self.GEOHASH_CATEGORY_DATABASE[geohash]
+					geohash_and_category = f"{geohash} ({category_value_of_geohash})"
+					body_geohash_frequency += f"{geohash_and_category.ljust(15)}: {geohash_with_frequency[geohash]} chats\n"
+				else:
+					body_geohash_frequency += f"{geohash.ljust(15)}: {geohash_with_frequency[geohash]} chats\n"
+				five += 1
+			return body_geohash_frequency
+
+	def add_recent_to_frequency(self, geohash_with_frequency: dict, fetched_data: list):
+		# print(geohash_with_frequency)
+		# input()
+		# print(fetched_data)
+
+		for a_geohash_with_frequency in geohash_with_frequency:
+			temp_timestamp_list_for_a_geohash = []			
+
+			for fetched_datum in fetched_data:
+				if fetched_datum["channel"] == a_geohash_with_frequency:
+					# print(fetched_datum["channel"])
+					# print(fetched_datum["timestamp"])
+					# print("===========")
+
+					temp_timestamp_list_for_a_geohash += [fetched_datum["timestamp"]]
+
+			recent_timestamp = temp_timestamp_list_for_a_geohash[-1]
+			dt_object = datetime.fromisoformat(recent_timestamp.replace("Z", "+00:00"))
+			readable_time = humanize.naturaltime(dt_object)
+
+			geohash_with_frequency[a_geohash_with_frequency].append(readable_time)
+		
+		return geohash_with_frequency
+
+		# for fetched_datum in fetched_data:
+		# 	print(fetched_datum["timestamp"])
+
+	def main(self):
+		reader = Reader()
+		fetched_data_from_api = reader.main()
+
+		frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
+		
+		concatenate_recent = self.add_recent_to_frequency(
+			geohash_with_frequency=frequent_geohash_list_value, 
+			fetched_data=fetched_data_from_api)
 
 
+
+
+
+		# frecency_body = self.categorize_geohash(frequent_geohash)
+		# print(frecency)
 
 
 if __name__ == '__main__':
@@ -395,4 +466,5 @@ if __name__ == '__main__':
 	# print(test.main())
 
 	test = Bot()
+	test.main()
 
