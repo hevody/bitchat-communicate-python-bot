@@ -43,8 +43,6 @@ def event_generator(PRIVATE_KEY: str, kind: int, tags: list, content: str, proof
 
 		event_id = hashlib.sha256(serialized.encode('utf-8')).hexdigest()
 
-
-	PrivateKey().sign_schnorr(bytes.fromhex(event_id)).hex()
 	signature = pk_SIGNER.sign_schnorr(bytes.fromhex(event_id)).hex()
 
 	event = {
@@ -116,15 +114,17 @@ if __name__ == '__main__':
 	# relays = config["RELAYS"]
 
 	# ### showing presence ###
+	relays = ["wss://relay01.lnfi.network:443"]
 	# while True:
 	# 	show_presence = send(PRIVATE_KEY=PRIVATE_KEY,
 	# 					kind=20001,
-	# 					tags=[tags[0]],
+	# 					# tags=[tags[0]],
+	# 					tags=tags[:2],
 	# 					content="",
 	# 					proof_of_work=False, 
 	# 					relays=relays)
-	# 	time.sleep(5)
 
+	
 	show_presence = send(PRIVATE_KEY=PRIVATE_KEY,
 						kind=20001,
 						tags=[tags[0]],
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 						proof_of_work=False, 
 						relays=relays)
 	
-
+	time.sleep(5)
 	response = send(PRIVATE_KEY=PRIVATE_KEY,
 					kind=20000,
 					tags=tags,
