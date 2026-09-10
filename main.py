@@ -16,11 +16,12 @@ from coincurve import PrivateKey
 import time
 import hashlib
 import websocket
+import pygeohash
+import csv
+import math
+import requests
 
 DOTENV_PATH = find_dotenv()
-
-
-
 
 def load_necessary_data() -> tuple[list, bool, str]:
 	load_dotenv()
@@ -188,12 +189,19 @@ class CryptographySpecific:
 
 class Config:
 	def __init__(self):
-		self.DEBUG = False
+		self.DEBUG = True
 		self.POW = True
 		self.LOG = True
 		self.USE_STATIC_PRIVATE_KEY = True
 		self.NONCE_DIFFICULTY = 15
 		self.RELAYS_LEGACY = ["wss://21milionidinostr.duckdns.org", "wss://offchain.bostr.online", "wss://yabu.me", "wss://nos.lol", "wss://nostr-relay.zimage.com", "wss://nostr.twinkle.lol", "wss://nostr.2b9t.xyz", "wss://bitcoinostr.duckdns.org", "wss://nostr.dlcdevkit.com", "wss://relay01.lnfi.network", "wss://bucket.coracle.social", "wss://cdn.satellite.earth", "wss://staging.yabu.me", "wss://relay.islandbitcoin.com", "wss://nostr-relay.nextblockvending.com", "wss://nostr.whitenode45.ddns.net", "wss://no.str.cr", "wss://nostr-relay.xbytez.io", "wss://relay.illuminodes.com", "wss://relay.pyramid.li", "wss://relay.nostu.be", "wss://nostrride.io", "wss://relay.dyne.org", "wss://nostr.christiansass.de", "wss://nostr.thebiglake.org", "wss://relay02.lnfi.network", "wss://nostrrelay.taylorperron.com", "wss://relay.staging.plebeian.market", "wss://relay.guggero.org", "wss://relay.ru.ac.th", "wss://relay.damus.io", "wss://nostr.relay.hedwig.sh", "wss://nostr.myshosholoza.co.za", "wss://nostr.azzamo.net", "wss://relay.sharegap.net", "wss://relay.internationalright-wing.org", "wss://nostr-relay.corb.net", "wss://ec2.f7z.io", "wss://nostr.snowbla.de", "wss://nr.yay.so", "wss://relay1.nostrchat.io", "wss://relay.earthly.city", "wss://freelay.sovbit.host", "wss://nrl.ceskar.xyz", "wss://relay.plebeian.market", "wss://bridge.tagomago.me", "wss://offchain.pub", "wss://nostrcheck.me", "wss://relay.bowlafterbowl.com", "wss://nostr-01.yakihonne.com", "wss://nostr.4rs.nl", "wss://relay.satlantis.io", "wss://relay.mccormick.cx", "wss://adre.su", "wss://relay.laantungir.net", "wss://nostr.novacisko.cz", "wss://relay.nostrhub.fr", "wss://relay.nearhood.co.uk", "wss://nostr.unkn0wn.world", "wss://nostr.middling.mydns.jp", "wss://dev-relay.nostreon.com", "wss://myvoiceourstory.org", "wss://nostr.islandarea.net"]
+		self.GENERAL_HEADERS = {
+    "User-Agent": "Mozlla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Connection": "keep-alive"
+  	}
+		self.BITCHAT_EXPLORER_API = "https://bitchatexplorer.com/api/messages?limit=1000"
+
 
 class Sender:
 	def __init__(self):
@@ -277,6 +285,36 @@ class Sender:
 	
 		return published_result
 
+class ProximityRelay:
+	def __init__(self):
+		pass
+
+	def calculate_displacement(self, lat_relay: float, long_relay: float, lat_geohash: float, long_geohash: float) -> float:
+
+	    displacement = math.sqrt(((lat_relay - lat_geohash)**2) + ((long_relay - long_geohash)**2))
+	    return displacement
+
+	def find_closest_relay(self, geohash: str) -> list:
+	    relay_proximity = {}
+
+	    lat_geohash, long_geohash = pygeohash.decode(geohash=geohash)
+
+	    with open('nostr_relays.csv', mode='r', newline='', encoding='utf-8') as file:
+	        dict_reader = csv.DictReader(file)
+	        for relay in dict_reader:
+	            calculated_displacement = self.calculate_displacement(
+	                    lat_relay=float(relay["Latitude"]),
+	                    long_relay=float(relay["Longitude"]),
+	                    lat_geohash=lat_geohash,
+	                    long_geohash=long_geohash
+	                )
+
+	            relay_proximity[f'wss://{relay["Relay URL"]}'] = calculated_displacement
+
+	    relay_proximity_sorted = dict(sorted(relay_proximity.items(), key=lambda item: item[1]))
+	    
+	    return list(relay_proximity_sorted) 
+
 class TestData:
 	def __init__(self):
 		self.GEOHASH_CHANNEL_KIND = 20000
@@ -290,6 +328,45 @@ class TestData:
 		# self.relay = ["wss://nostr-01.yakihonne.com"]
 		self.relay = ["wss://relay.notoshi.win"]
 
+class Reader:
+	def __init__(self):
+		config = Config()
+		self.GENERAL_HEADERS = config.GENERAL_HEADERS
+		self.BITCHAT_EXPLORER_API = config.BITCHAT_EXPLORER_API
+
+	def perform_get_request(self, url: str, specific_headers: str) -> dict | str:
+	  logging.info('[*] Performing a GET request')
+	  response = requests.get(url, headers=specific_headers)
+
+	  if response.headers.get("Content-Type", "") == 'application/json; charset=utf-8':
+	    return response.json()
+	  else:
+	    return response.text
+
+	def main(self):
+		bitLiteralChats = self.perform_get_request(url=self.BITCHAT_EXPLORER_API, specific_headers=self.GENERAL_HEADERS)
+		return bitLiteralChats
+
+class Bot:
+	def __init__(self):
+		reader = Reader()
+		fetched_data_from_api = reader.main()
+		print(fetched_data_from_api)
+
+	def frequency_geohash(self, fetched_data):
+		geohash_with_frequency= {}
+		for fetched_datum in fetched_data:
+			if fetched_datum["geohash"] in BLOCKED_GEOHASHES:
+				continue
+			geohash_with_frequency[fetched_datum["channel"]] = geohash_with_frequency.get(fetched_datum["channel"], 0) + 1
+
+		descending_geohash_with_frequency = dict(sorted(geohash_with_frequency.items(), key=lambda item: item[1], reverse=True))
+
+		return descending_geohash_with_frequency
+
+
+
+
 if __name__ == '__main__':
 	config = Config()
 	PRIVATE_KEY = os.getenv("STATIC_PRIVATE_KEY")
@@ -299,26 +376,23 @@ if __name__ == '__main__':
 		while True:
 			menu()
 
-	sender = Sender()
-	test_crypto = CryptographySpecific()
+	# sender = Sender()
 
-	# pk_signer, pubkey = test_crypto.retrieve_signer_and_pubkey(PRIVATE_KEY)
-	test_data = TestData()
+	# test_data = TestData()
 
-	# mined = test_crypto.mine_nonce(	pubkey,
-	# 								test_data.GEOHASH_CHANNEL_KIND,
-	# 								test_data.tags,
-	# 								test_data.content,
-	# 								config.NONCE_DIFFICULTY)
-	
-	# sender.event_generator(	test_data.GEOHASH_CHANNEL_KIND,
-	# 						test_data.tags,
-	# 						test_data.content)
+	# relay_response = sender.send(
+	# 	test_data.GEOHASH_CHANNEL_KIND,
+	# 	test_data.tags,
+	# 	test_data.content,
+	# 	test_data.relay
+	# 	)
+	# print(relay_response)
 
-	relay_response = sender.send(
-		test_data.GEOHASH_CHANNEL_KIND,
-		test_data.tags,
-		test_data.content,
-		test_data.relay
-		)
-	print(relay_response)
+	# test = ProximityRelay()
+	# print(test.find_closest_relay("wd"))
+
+	# test = Reader()
+	# print(test.main())
+
+	test = Bot()
+
