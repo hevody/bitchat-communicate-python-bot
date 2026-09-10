@@ -188,7 +188,7 @@ class CryptographySpecific:
 
 class Config:
 	def __init__(self):
-		self.DEBUG = True
+		self.DEBUG = False
 		self.POW = True
 		self.LOG = True
 		self.USE_STATIC_PRIVATE_KEY = True
@@ -282,12 +282,13 @@ class TestData:
 		self.GEOHASH_CHANNEL_KIND = 20000
 		self.PRESENCE_KIND = 20001
 		self.tags = [[], ["t", "teleport"], []]
-		self.geohash = "wd40" 
-		self.nickname = "glazer be glazing" 
+		self.geohash = "wd" 
+		self.nickname = "Glazer🇵🇭 bot" 
 		self.tags[0] = ["g", self.geohash]
 		self.tags[2] = ["n", self.nickname]
 		self.content = "nasan ang sabaw! - Baron" 
-		self.relay = ["wss://nostr-01.yakihonne.com"]
+		# self.relay = ["wss://nostr-01.yakihonne.com"]
+		self.relay = ["wss://relay.notoshi.win"]
 
 if __name__ == '__main__':
 	config = Config()
