@@ -23,6 +23,7 @@ import math
 import requests
 from datetime import datetime
 import humanize
+import re
 
 DOTENV_PATH = find_dotenv()
 
@@ -393,20 +394,14 @@ class Bot:
 				five += 1
 			return body_geohash_frequency
 
-	def add_recent_to_frequency(self, geohash_with_frequency: dict, fetched_data: list):
-		# print(geohash_with_frequency)
-		# input()
-		# print(fetched_data)
 
+
+	def add_recent_to_frequency(self, geohash_with_frequency: dict, fetched_data: list):
 		for a_geohash_with_frequency in geohash_with_frequency:
 			temp_timestamp_list_for_a_geohash = []			
 
 			for fetched_datum in fetched_data:
 				if fetched_datum["channel"] == a_geohash_with_frequency:
-					# print(fetched_datum["channel"])
-					# print(fetched_datum["timestamp"])
-					# print("===========")
-
 					temp_timestamp_list_for_a_geohash += [fetched_datum["timestamp"]]
 
 			recent_timestamp = temp_timestamp_list_for_a_geohash[-1]
@@ -416,9 +411,6 @@ class Bot:
 			geohash_with_frequency[a_geohash_with_frequency].append(readable_time)
 		
 		return geohash_with_frequency
-
-		# for fetched_datum in fetched_data:
-		# 	print(fetched_datum["timestamp"])
 
 	def main(self):
 		reader = Reader()
@@ -430,6 +422,7 @@ class Bot:
 			geohash_with_frequency=frequent_geohash_list_value, 
 			fetched_data=fetched_data_from_api)
 
+		print(concatenate_recent)
 
 
 
