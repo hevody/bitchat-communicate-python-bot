@@ -4,6 +4,7 @@ coincurve==21.0.0
 feedparser==6.0.14
 feedparser-sgmllib==2.1.0
 idna==3.19
+pygeohash==3.5.1
 python-dotenv==1.2.3
 requests==2.34.2
 urllib3==2.7.0

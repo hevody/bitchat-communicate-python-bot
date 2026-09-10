@@ -282,11 +282,12 @@ class TestData:
 		self.GEOHASH_CHANNEL_KIND = 20000
 		self.PRESENCE_KIND = 20001
 		self.tags = [[], ["t", "teleport"], []]
-		self.geohash = "wd" 
+		self.geohash = "wd40" 
 		self.nickname = "glazer be glazing" 
 		self.tags[0] = ["g", self.geohash]
 		self.tags[2] = ["n", self.nickname]
-		self.content = "nasan ang sabaw!" 
+		self.content = "nasan ang sabaw! - Baron" 
+		self.relay = ["wss://nostr-01.yakihonne.com"]
 
 if __name__ == '__main__':
 	config = Config()
@@ -317,6 +318,6 @@ if __name__ == '__main__':
 		test_data.GEOHASH_CHANNEL_KIND,
 		test_data.tags,
 		test_data.content,
-		config.RELAYS_LEGACY
+		test_data.relay
 		)
 	print(relay_response)
