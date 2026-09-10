@@ -350,8 +350,39 @@ class Reader:
 		bitLiteralChats = self.perform_get_request(url=self.BITCHAT_EXPLORER_API, specific_headers=self.GENERAL_HEADERS)
 		return bitLiteralChats
 
+class PerformRegex:
+	def __init__(self):
+		pass
+
+	def translate_time_to_Filipino(self, contents: str):
+		PATTERNS = {
+			"second_pattern": [re.compile(r"a second ago"), "isang segundo na ang nakalipas"],
+			"seconds_pattern": [re.compile(r"seconds ago"), "segundo na ang nakalipas"],
+			"minute_pattern": [re.compile("a minute ago"), "isang minuto na ang nakalipas"],
+			"minutes_pattern": [re.compile(r"minutes ago"), "minuto na ang nakalipas"],
+			"hour_pattern": [re.compile("an hour ago"), "isang oras na ang nakalipas"],
+			"hours_pattern": [re.compile("hours ago"), "oras na ang nakalipas"]
+
+		}
+
+		for pattern in PATTERNS:
+			contents = PATTERNS[pattern][0].sub(
+				PATTERNS[pattern][1],
+				contents
+			)
+		return contents
+
 class Bot:
 	def __init__(self):
+		self.nickname = "Glazer🇵🇭 Bot"
+		self.MAIN_GEOHASH = "wd"
+		self.GEOHASH_CHANNEL_KIND = 20000
+		self.tags = [[], ["t", "teleport"], []]
+		self.tags[0] = ["g", self.MAIN_GEOHASH]
+		self.tags[2] = ["n", self.nickname]
+		self.relays = ["wss://relay.notoshi.win"]
+
+
 		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd"]
 		self.GEOHASH_CATEGORY_DATABASE = {
       "#st": "Egyptians",
@@ -363,8 +394,6 @@ class Bot:
       "wt": "Chinese",
       "d3": "Latinos"
     }
-
-		
 
 	def frequency_geohash(self, fetched_data) -> dict:
 		geohash_with_frequency= {}
@@ -378,23 +407,20 @@ class Bot:
 
 		return desc_gh_w_frequency_list_value
 
-	
-	def make_body_frecency(self, geohash_with_frecency):
+	def make_body_frecency(self, geohash_with_frecency: dict[list]) -> str:
 			body_geohash_frequency = ""
 			five = 0
-			for geohash in geohash_with_frequency:
+			for geohash in geohash_with_frecency:
 				if five == 5:
 					break
 				if geohash in self.GEOHASH_CATEGORY_DATABASE:
 					category_value_of_geohash = self.GEOHASH_CATEGORY_DATABASE[geohash]
 					geohash_and_category = f"{geohash} ({category_value_of_geohash})"
-					body_geohash_frequency += f"{geohash_and_category.ljust(15)}: {geohash_with_frequency[geohash]} chats\n"
+					body_geohash_frequency += f"{geohash_and_category.ljust(15)}: {geohash_with_frecency[geohash][0]} chats, aktibo: {geohash_with_frecency[geohash][1]}\n"
 				else:
-					body_geohash_frequency += f"{geohash.ljust(15)}: {geohash_with_frequency[geohash]} chats\n"
+					body_geohash_frequency += f"{geohash.ljust(15)}: {geohash_with_frecency[geohash][0]} chats, aktibo: {geohash_with_frecency[geohash][1]}\n"
 				five += 1
 			return body_geohash_frequency
-
-
 
 	def add_recent_to_frequency(self, geohash_with_frequency: dict, fetched_data: list):
 		for a_geohash_with_frequency in geohash_with_frequency:
@@ -408,12 +434,17 @@ class Bot:
 			dt_object = datetime.fromisoformat(recent_timestamp.replace("Z", "+00:00"))
 			readable_time = humanize.naturaltime(dt_object)
 
-			geohash_with_frequency[a_geohash_with_frequency].append(readable_time)
+			p_regex = PerformRegex()
+			geohash_with_frequency[a_geohash_with_frequency].append(p_regex.translate_time_to_Filipino(readable_time))
 		
 		return geohash_with_frequency
 
 	def main(self):
+		
+
 		reader = Reader()
+		sender = Sender()
+
 		fetched_data_from_api = reader.main()
 
 		frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
@@ -422,13 +453,20 @@ class Bot:
 			geohash_with_frequency=frequent_geohash_list_value, 
 			fetched_data=fetched_data_from_api)
 
-		print(concatenate_recent)
+		body_frecency = self.make_body_frecency(
+				concatenate_recent
+			)
 
+		print(body_frecency)
 
+		publish_response = sender.send(
+			self.GEOHASH_CHANNEL_KIND,
+			self.tags,
+			body_frecency,
+			self.relays
+		)
 
-
-		# frecency_body = self.categorize_geohash(frequent_geohash)
-		# print(frecency)
+		print(publish_response)
 
 
 if __name__ == '__main__':
