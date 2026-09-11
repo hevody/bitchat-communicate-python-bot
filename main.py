@@ -325,13 +325,11 @@ class TestData:
 		self.GEOHASH_CHANNEL_KIND = 20000
 		self.PRESENCE_KIND = 20001
 		self.tags = [[], ["t", "teleport"], []]
-		self.geohash = "wd" 
+		self.geohash = "st" 
 		self.nickname = "Glazer🇵🇭 bot" 
 		self.tags[0] = ["g", self.geohash]
 		self.tags[2] = ["n", self.nickname]
 		self.content = "nasan ang sabaw! - Baron" 
-		self.relay = ["wss://nostr-01.yakihonne.com"]
-		# self.relay = ["wss://relay.notoshi.win"]
 
 class Reader:
 	def __init__(self):
@@ -488,17 +486,19 @@ if __name__ == '__main__':
 		while True:
 			menu()
 
-	# sender = Sender()
 
-	# test_data = TestData()
+	sender = Sender()
 
-	# relay_response = sender.send(
-	# 	test_data.GEOHASH_CHANNEL_KIND,
-	# 	test_data.tags,
-	# 	test_data.content,
-	# 	test_data.relay
-	# 	)
-	# print(relay_response)
+	test_data = TestData()
+	proximity = ProximityRelay()
+
+	relay_response = sender.send(
+		test_data.GEOHASH_CHANNEL_KIND,
+		test_data.tags,
+		test_data.content,
+		proximity.find_closest_relay(test_data.geohash)
+		)
+	print(relay_response)
 
 	# test = ProximityRelay()
 	# print(test.find_closest_relay("wd"))
@@ -506,6 +506,6 @@ if __name__ == '__main__':
 	# test = Reader()
 	# print(test.main())
 
-	test = Bot()
-	test.main()
+	# test = Bot()
+	# test.main()
 
