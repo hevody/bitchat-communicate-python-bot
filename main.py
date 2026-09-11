@@ -27,7 +27,9 @@ from tabulate import tabulate
 import textwrap
 import feedparser
 from bs4 import BeautifulSoup
-from text_fancipy.fancipy import fancipy, unfancipy_all
+from text_fancipy.fancipy import fancipy
+import xml.etree.ElementTree as ET
+from io import StringIO
 
 DOTENV_PATH = find_dotenv()
 
@@ -212,6 +214,7 @@ class Config:
 		self.PH_COMPATIBLE = True 				# turn this off if not from ph
 		self.GMA_NEWS_NATION_RSS_FEED = "https://data.gmanetwork.com/gno/rss/news/nation/feed.xml"
 		self.NEWS_GEOHASH = 'phnews'
+		self.PAGASA_MAIN_RSS_FEED = "https://publicalert.pagasa.dost.gov.ph/feeds/"
 
 class Sender:
 	def __init__(self):
@@ -287,7 +290,7 @@ class Sender:
 										tags=tags,
 										content=content
 										)
-		print(event_created)
+
 		published_result = self.send_event_to_relay(
 												event=event_created,
 												relays=relays
@@ -382,14 +385,18 @@ class PerformRegex:
 			)
 		return contents
 
-class NewsReader:
+class RSS_XML_READER:
 	def __init__(self):
-		pass
+		config = Config()
+		self.GMA_NEWS_NATION_RSS_FEED = config.GMA_NEWS_NATION_RSS_FEED
+		self.PAGASA_MAIN_RSS_FEED = config.PAGASA_MAIN_RSS_FEED
+		self.GENERAL_HEADERS = config.GENERAL_HEADERS
+		self.reader = Reader()
 
 	def fetch_gma_ph_news(self):
 		news_contents = ''
-		config = Config()
-		d = feedparser.parse(config.GMA_NEWS_NATION_RSS_FEED)
+		
+		d = feedparser.parse(self.GMA_NEWS_NATION_RSS_FEED)
 
 		for entry in d["entries"]:
 			summary_with_html = entry["summary"]
@@ -400,9 +407,36 @@ class NewsReader:
 			news_content = f'📰 {fancipy(entry["title"], "snbd")}\n🔎 Summary: {summary}\n🔗 Link: {entry["link"][:-1]}\n\n'
 			news_contents += news_content
 
-		return news_contents
+		return news_contents + '\nBack to #wd'
+
+	def fetch_pagasa_main(self):
+		d = feedparser.parse(self.PAGASA_MAIN_RSS_FEED)
+		# we need the Title, link, time updated,
+		for entry in d["entries"]:
+			print(entry["title"])
+			print(entry["updated"])
+			print(entry["links"][0]["href"])
+			print("=====")
+
+	def pagasa_by_region(self):
+		region_report = self.reader.perform_get_request('https://publicalert.pagasa.dost.gov.ph/output/gfa/2ab0ee00-6541-4a3e-b51e-88f64c48942e.cap', self.GENERAL_HEADERS)
+		root = ET.fromstring(region_report)
+		
+		
+		ns = {'cap': 'urn:oasis:names:tc:emergency:cap:1.2'}
+		identifier = root.find('cap:identifier', ns)
+
+		for info in root.findall('cap:info', ns):
+		    headline = info.find('cap:headline', ns)
+		    description = info.find('cap:description', ns)
+		    instruction = info.find('cap:instruction', ns)
+
+		    print(f"Headline: {headline.text}")
+		    print(f"Description: {description.text}")
+		    print(f"Instruction: {instruction.text}")
 
 class Bot:
+	# this bot will be sending a message every 30 minutes (ex. 2:00, 2:30, 3:00) based on GitHub actions
 	def __init__(self):
 		self.nickname = "Glazer🇵🇭 Bot"
 		self.MAIN_GEOHASH = "wd"
@@ -412,7 +446,7 @@ class Bot:
 		self.tags[2] = ["n", self.nickname]
 
 
-		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd", "test", "phnews"]
+		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd", "test", "phnews", "sentryhub"]
 		self.GEOHASH_CATEGORY_DATABASE = {
       "#st": "Egyptians",
       "#wd": "Filipinos",
@@ -483,7 +517,7 @@ class Bot:
 		sender = Sender()
 		proximity = ProximityRelay()
 		config = Config()
-		news_reader = NewsReader()
+		r_x_reader = RSS_XML_READER()
 
 		fetched_data_from_api = reader.main()
 
@@ -499,23 +533,20 @@ class Bot:
 
 		print(body_frecency)
 
-		print(proximity.find_closest_relay(self.MAIN_GEOHASH)[0])
-		publish_response = sender.send(
+		body_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
 			body_frecency,
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
-
-		print(publish_response)
+		print(body_publish_response)
 
 		self.tags[0] = ["g", config.NEWS_GEOHASH]
-		print(proximity.find_closest_relay(config.NEWS_GEOHASH)[1])
 
 		news_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
-			news_reader.fetch_gma_ph_news(),
+			r_x_reader.fetch_gma_ph_news(),
 			[proximity.find_closest_relay(config.NEWS_GEOHASH)[1]]
 		)
 		print(news_publish_response)
@@ -524,11 +555,11 @@ class Bot:
 		news_aware_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
-			"\n[*] Matagumpay na nakapagpadala ng balita mula sa Pilipinas ang bot\nBisitahin: #phnews",
+			"\n[*] Matagumpay na nakapagpadala ng balita mula sa Pilipinas ang bot\nBisitahin ang geohash na ito: #phnews",
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
+		print(news_aware_publish_response)
 
-		print(publish_response)
 
 
 if __name__ == '__main__':
@@ -541,10 +572,10 @@ if __name__ == '__main__':
 			menu()
 
 
-	sender = Sender()
+	# sender = Sender()
 
-	test_data = TestData()
-	proximity = ProximityRelay()
+	# test_data = TestData()
+	# proximity = ProximityRelay()
 
 	# print(proximity.find_closest_relay(test_data.geohash)[1])
 	# relay_response = sender.send(
@@ -561,6 +592,8 @@ if __name__ == '__main__':
 	# test = Reader()
 	# print(test.main())
 
-	test = Bot()
-	test.main()
+	# test = Bot()
+	# test.main()
 
+	r_x = RSS_XML_READER()
+	r_x.pagasa_by_region()
