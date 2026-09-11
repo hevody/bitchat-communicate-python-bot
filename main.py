@@ -207,7 +207,8 @@ class Config:
     "Connection": "keep-alive"
   	}
 		self.BITCHAT_EXPLORER_API = "https://bitchatexplorer.com/api/messages?limit=1000"
-
+		self.PH_COMPATIBLE = True 				# turn this off if not from ph
+			
 class Sender:
 	def __init__(self):
 		self.cryptography = CryptographySpecific()
@@ -292,7 +293,8 @@ class Sender:
 
 class ProximityRelay:
 	def __init__(self):
-		pass
+		config = Config()
+		self.PH_COMPATIBLE = config.PH_COMPATIBLE
 
 	def calculate_displacement(self, lat_relay: float, long_relay: float, lat_geohash: float, long_geohash: float) -> float:
 
@@ -317,15 +319,19 @@ class ProximityRelay:
 	            relay_proximity[f'wss://{relay["Relay URL"]}'] = calculated_displacement
 
 	    relay_proximity_sorted = dict(sorted(relay_proximity.items(), key=lambda item: item[1]))
-	    
-	    return list(relay_proximity_sorted) 
+	    list_form_rps = list(relay_proximity_sorted) 
+
+	    if self.PH_COMPATIBLE:
+	    	list_form_rps.insert(0, "wss://nostr-01.yakihonne.com")
+
+	    return list_form_rps
 
 class TestData:
 	def __init__(self):
 		self.GEOHASH_CHANNEL_KIND = 20000
 		self.PRESENCE_KIND = 20001
 		self.tags = [[], ["t", "teleport"], []]
-		self.geohash = "st" 
+		self.geohash = "wd" 
 		self.nickname = "Glazer🇵🇭 bot" 
 		self.tags[0] = ["g", self.geohash]
 		self.tags[2] = ["n", self.nickname]
@@ -380,21 +386,23 @@ class Bot:
 		self.tags = [[], ["t", "teleport"], []]
 		self.tags[0] = ["g", self.MAIN_GEOHASH]
 		self.tags[2] = ["n", self.nickname]
-		self.relays = ["wss://nostr-01.yakihonne.com"]	# inject this for compatability
 
 
-		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd"]
+		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd", "test"]
 		self.GEOHASH_CATEGORY_DATABASE = {
       "#st": "Egyptians",
       "#wd": "Filipinos",
       "#9q": "Americans",
       "#u2": "Europeans",
       "#xn": "Japanese",
-      "ws": "Chinese",
-      "wt": "Chinese",
-      "d3": "Latinos",
-      "qq": "Indonesians"
+      "#ws": "Chinese",
+      "#wt": "Chinese",
+      "#d3": "Latinos",
+      "#qq": "Indonesians",
+      "#u1": "French",
+      "#tt": "Pakistanis"
     }
+		self.PH_COMPATIBLE = True
 
 	def frequency_geohash(self, fetched_data) -> dict:
 		geohash_with_frequency= {}
@@ -452,6 +460,7 @@ class Bot:
 
 		reader = Reader()
 		sender = Sender()
+		proximity = ProximityRelay()
 
 		fetched_data_from_api = reader.main()
 
@@ -471,10 +480,12 @@ class Bot:
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
 			body_frecency,
-			self.relays
+			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
 
 		print(publish_response)
+
+class 
 
 
 if __name__ == '__main__':
@@ -487,18 +498,18 @@ if __name__ == '__main__':
 			menu()
 
 
-	sender = Sender()
+	# sender = Sender()
 
-	test_data = TestData()
-	proximity = ProximityRelay()
+	# test_data = TestData()
+	# proximity = ProximityRelay()
 
-	relay_response = sender.send(
-		test_data.GEOHASH_CHANNEL_KIND,
-		test_data.tags,
-		test_data.content,
-		proximity.find_closest_relay(test_data.geohash)
-		)
-	print(relay_response)
+	# relay_response = sender.send(
+	# 	test_data.GEOHASH_CHANNEL_KIND,
+	# 	test_data.tags,
+	# 	test_data.content,
+	# 	proximity.find_closest_relay(test_data.geohash)
+	# 	)
+	# print(relay_response)
 
 	# test = ProximityRelay()
 	# print(test.find_closest_relay("wd"))
