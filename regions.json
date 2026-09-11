@@ -1,0 +1,21 @@
+{"PH_REGIONS": {
+	"NCR: National Capital Region": [[14.58, 121], "wdw4"],
+	"CAR: Cordillera Administrative Region": [[17.17, 121.17], "wen1"],
+	"Region 1 (Ilocos Region)": [[16.62, 120.32], "wdvw"],
+	"Region 2 (Cagayan Valley)": [[17.6133, 121.7303], "wens"],
+	"Region 3 (Central Luzon)": [[15.47, 120.75], "wdvb"],
+	"Region IV-A (CALABARZON)": [[14, 121.5], "wdqr"],
+	"Region IV-B (MIMAROPA)": [[10.67, 119.5], "w9uu"],
+	"Region 5 (Bicol Region)": [[13.5, 123.33], "wdrs"],
+	"Region 6 (Western Visayas)": [[11.13, 122.53], "w9zp"],
+	"NIR: Negros Island Region": [[10.676458, 122.950917], "w9zk"],
+	"Region 7 (Central Visayas)": [[10, 123.5], "w9zb"],
+	"Region 8 (Eastern Visayas)": [[11.24, 125.05], "wcbz"],
+	"Region 9 (Zamboanga Peninsula)": [[7.83, 122.42], "w9rh"],
+	"Region 10 (Northern Mindanao)": [[8.75, 124.92], "wc8c"],
+	"Region 11 (Davao Region)": [[7.08, 125.58], "wc32"],
+	"Region 12 (SOCCSKSARGEN)": [[6.5, 124.85], "wc0u"],
+	"Region 13 (CARAGA)": [[8.92, 125.5], "wc94"],
+	"BARMM: Bangsamoro Autonomous Region of Muslim Mindanao": [[7.22, 124.25], "wc23"]
+	}	
+}

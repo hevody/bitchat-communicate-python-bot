@@ -1,6 +1,4 @@
 import json
-import os
-import json
 import logging
 
 import os
@@ -218,6 +216,7 @@ class Config:
 
 class Sender:
 	def __init__(self):
+		PRIVATE_KEY = os.getenv("STATIC_PRIVATE_KEY")
 		self.cryptography = CryptographySpecific()
 		config = Config()
 		self.POW = config.POW
@@ -385,7 +384,7 @@ class PerformRegex:
 			)
 		return contents
 
-class RSS_XML_READER:
+class RSS_XML_Reader:
 	def __init__(self):
 		config = Config()
 		self.GMA_NEWS_NATION_RSS_FEED = config.GMA_NEWS_NATION_RSS_FEED
@@ -517,7 +516,7 @@ class Bot:
 		sender = Sender()
 		proximity = ProximityRelay()
 		config = Config()
-		r_x_reader = RSS_XML_READER()
+		r_x_reader = RSS_XML_Reader()
 
 		fetched_data_from_api = reader.main()
 
@@ -564,7 +563,6 @@ class Bot:
 
 if __name__ == '__main__':
 	config = Config()
-	PRIVATE_KEY = os.getenv("STATIC_PRIVATE_KEY")
 
 	if not config.DEBUG:
 		HeadingArt()
