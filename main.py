@@ -1,4 +1,3 @@
-
 import json
 import os
 import json
@@ -26,6 +25,9 @@ import humanize
 import re
 from tabulate import tabulate
 import textwrap
+import feedparser
+from bs4 import BeautifulSoup
+from text_fancipy.fancipy import fancipy, unfancipy_all
 
 DOTENV_PATH = find_dotenv()
 
@@ -209,7 +211,8 @@ class Config:
 		self.BITCHAT_EXPLORER_API = "https://bitchatexplorer.com/api/messages?limit=1000"
 		self.PH_COMPATIBLE = True 				# turn this off if not from ph
 		self.GMA_NEWS_NATION_RSS_FEED = "https://data.gmanetwork.com/gno/rss/news/nation/feed.xml"
-			
+		self.NEWS_GEOHASH = 'phnews'
+
 class Sender:
 	def __init__(self):
 		self.cryptography = CryptographySpecific()
@@ -284,7 +287,7 @@ class Sender:
 										tags=tags,
 										content=content
 										)
-
+		print(event_created)
 		published_result = self.send_event_to_relay(
 												event=event_created,
 												relays=relays
@@ -322,7 +325,7 @@ class ProximityRelay:
 	    relay_proximity_sorted = dict(sorted(relay_proximity.items(), key=lambda item: item[1]))
 	    list_form_rps = list(relay_proximity_sorted) 
 
-	    if self.PH_COMPATIBLE:
+	    if self.PH_COMPATIBLE and geohash.startswith('w'):
 	    	list_form_rps.insert(0, "wss://nostr-01.yakihonne.com")
 
 	    return list_form_rps
@@ -332,16 +335,11 @@ class TestData:
 		self.GEOHASH_CHANNEL_KIND = 20000
 		self.PRESENCE_KIND = 20001
 		self.tags = [[], ["t", "teleport"], []]
-		self.geohash = "wd" 
+		self.geohash = "phnews" 
 		self.nickname = "Glazer🇵🇭 bot" 
 		self.tags[0] = ["g", self.geohash]
 		self.tags[2] = ["n", self.nickname]
-		self.content = """
-📰 𝗥𝗼𝗺𝘂𝗮𝗹𝗱𝗲𝘇 𝘀𝘂𝗳𝗳𝗲𝗿𝗶𝗻𝗴 𝗳𝗿𝗼𝗺 𝗱𝗲𝗽𝗿𝗲𝘀𝘀𝗶𝘃𝗲 𝗱𝗶𝘀𝗼𝗿𝗱𝗲𝗿, 𝗮𝗻𝘅𝗶𝗲𝘁𝘆, 𝘀𝗮𝘆𝘀 𝗽𝘀𝘆𝗰𝗵𝗶𝗮𝘁𝗿𝗶𝘀𝘁
-🔎 Summary: Former speaker and Leyte 1st District Representative Martin Romualdez has been diagnosed with depressive disorder with anxiety, his psychiatrist Dr. Lourdes Ignacio said Friday.
-🔗 Link: https://www.gmanetwork.com/news/topstories/nation/1002031/romualdez-suffering-from-depressive-disorder-anxiety-says-psychiatrist/story
-
-		"""
+		self.content = "nasan ang sabaw!"
 
 class Reader:
 	def __init__(self):
@@ -384,6 +382,26 @@ class PerformRegex:
 			)
 		return contents
 
+class NewsReader:
+	def __init__(self):
+		pass
+
+	def fetch_gma_ph_news(self):
+		news_contents = ''
+		config = Config()
+		d = feedparser.parse(config.GMA_NEWS_NATION_RSS_FEED)
+
+		for entry in d["entries"]:
+			summary_with_html = entry["summary"]
+			soup = BeautifulSoup(summary_with_html, 'html.parser')
+			br_tag = soup.find('br')
+			summary = br_tag.next_sibling.strip()
+
+			news_content = f'📰 {fancipy(entry["title"], "snbd")}\n🔎 Summary: {summary}\n🔗 Link: {entry["link"][:-1]}\n\n'
+			news_contents += news_content
+
+		return news_contents
+
 class Bot:
 	def __init__(self):
 		self.nickname = "Glazer🇵🇭 Bot"
@@ -394,7 +412,7 @@ class Bot:
 		self.tags[2] = ["n", self.nickname]
 
 
-		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd", "test"]
+		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd", "test", "phnews"]
 		self.GEOHASH_CATEGORY_DATABASE = {
       "#st": "Egyptians",
       "#wd": "Filipinos",
@@ -408,7 +426,6 @@ class Bot:
       "#u1": "French",
       "#tt": "Pakistanis"
     }
-		self.PH_COMPATIBLE = True
 
 	def frequency_geohash(self, fetched_data) -> dict:
 		geohash_with_frequency= {}
@@ -462,11 +479,11 @@ class Bot:
 		return geohash_with_frequency
 
 	def main(self):
-		
-
 		reader = Reader()
 		sender = Sender()
 		proximity = ProximityRelay()
+		config = Config()
+		news_reader = NewsReader()
 
 		fetched_data_from_api = reader.main()
 
@@ -482,6 +499,7 @@ class Bot:
 
 		print(body_frecency)
 
+		print(proximity.find_closest_relay(self.MAIN_GEOHASH)[0])
 		publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
@@ -490,6 +508,28 @@ class Bot:
 		)
 
 		print(publish_response)
+
+		self.tags[0] = ["g", config.NEWS_GEOHASH]
+		print(proximity.find_closest_relay(config.NEWS_GEOHASH)[1])
+
+		news_publish_response = sender.send(
+			self.GEOHASH_CHANNEL_KIND,
+			self.tags,
+			news_reader.fetch_gma_ph_news(),
+			[proximity.find_closest_relay(config.NEWS_GEOHASH)[1]]
+		)
+		print(news_publish_response)
+
+		self.tags[0] = ["g", self.MAIN_GEOHASH]
+		news_aware_publish_response = sender.send(
+			self.GEOHASH_CHANNEL_KIND,
+			self.tags,
+			"\n[*] Matagumpay na nakapagpadala ng balita mula sa Pilipinas ang bot\nBisitahin: #phnews",
+			proximity.find_closest_relay(self.MAIN_GEOHASH)
+		)
+
+		print(publish_response)
+
 
 if __name__ == '__main__':
 	config = Config()
@@ -506,13 +546,14 @@ if __name__ == '__main__':
 	test_data = TestData()
 	proximity = ProximityRelay()
 
-	relay_response = sender.send(
-		test_data.GEOHASH_CHANNEL_KIND,
-		test_data.tags,
-		test_data.content,
-		proximity.find_closest_relay(test_data.geohash)
-		)
-	print(relay_response)
+	# print(proximity.find_closest_relay(test_data.geohash)[1])
+	# relay_response = sender.send(
+	# 	test_data.GEOHASH_CHANNEL_KIND,
+	# 	test_data.tags,
+	# 	test_data.content,
+	# 	[proximity.find_closest_relay(test_data.geohash)[1]]
+	# 	)
+	# print(relay_response)
 
 	# test = ProximityRelay()
 	# print(test.find_closest_relay("wd"))
@@ -520,6 +561,6 @@ if __name__ == '__main__':
 	# test = Reader()
 	# print(test.main())
 
-	# test = Bot()
-	# test.main()
+	test = Bot()
+	test.main()
 
