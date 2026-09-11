@@ -105,14 +105,14 @@ def main_bot():
 	fetched_data_from_api = read_api.main()
 
 	active_geohashes_ph = scan_vicinity(fetched_data_from_api)
-	relays = config["RELAYS"]
+	relays = ["wss://nostr-01.yakihonne.com"]
 	send_vicinity(active_geohashes_ph, relays, enable_proof_of_work, PRIVATE_KEY)
 
 	frequent_geohash = frequency_geohash(fetched_data_from_api)
 
 	message = content_builder(frequent_geohash)
-	relays = config["BOT_CONFIG"]["RELAYS"]
 	
+
 	tags[0] = ["g", "wd"]
 	response = sender.send(	PRIVATE_KEY=PRIVATE_KEY,
 						kind=20000,

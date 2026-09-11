@@ -45,7 +45,6 @@ def main():
 
   bitLiteralChats = perform_get_request(url=BITCHAT_EXPLORER_API, specific_headers=GENERAL_HEADERS)
   debug_pubkey(bitLiteralChats)
-  input()
   return bitLiteralChats
 
 if __name__ == '__main__':

@@ -24,6 +24,8 @@ import requests
 from datetime import datetime
 import humanize
 import re
+from tabulate import tabulate
+import textwrap
 
 DOTENV_PATH = find_dotenv()
 
@@ -34,7 +36,7 @@ def load_necessary_data() -> tuple[list, bool, str]:
 	
 	relays = config["RELAYS"]
 	enable_proof_of_work = config["enable_proof_of_work"]
-	PRIVATE_KEY = os.getenv("PRIVATE_KEY")
+	PRIVATE_KEY = os.getenv("STATIC_PRIVATE_KEY")
 
 	return relays, enable_proof_of_work, PRIVATE_KEY
 
@@ -328,8 +330,8 @@ class TestData:
 		self.tags[0] = ["g", self.geohash]
 		self.tags[2] = ["n", self.nickname]
 		self.content = "nasan ang sabaw! - Baron" 
-		# self.relay = ["wss://nostr-01.yakihonne.com"]
-		self.relay = ["wss://relay.notoshi.win"]
+		self.relay = ["wss://nostr-01.yakihonne.com"]
+		# self.relay = ["wss://relay.notoshi.win"]
 
 class Reader:
 	def __init__(self):
@@ -380,7 +382,7 @@ class Bot:
 		self.tags = [[], ["t", "teleport"], []]
 		self.tags[0] = ["g", self.MAIN_GEOHASH]
 		self.tags[2] = ["n", self.nickname]
-		self.relays = ["wss://relay.notoshi.win"]
+		self.relays = ["wss://nostr-01.yakihonne.com"]	# inject this for compatability
 
 
 		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd"]
@@ -392,7 +394,8 @@ class Bot:
       "#xn": "Japanese",
       "ws": "Chinese",
       "wt": "Chinese",
-      "d3": "Latinos"
+      "d3": "Latinos",
+      "qq": "Indonesians"
     }
 
 	def frequency_geohash(self, fetched_data) -> dict:
@@ -408,19 +411,26 @@ class Bot:
 		return desc_gh_w_frequency_list_value
 
 	def make_body_frecency(self, geohash_with_frecency: dict[list]) -> str:
-			body_geohash_frequency = ""
+			body_geohash_frecency = []
 			five = 0
+			WRAP_WIDTH = 20
+
 			for geohash in geohash_with_frecency:
 				if five == 5:
 					break
 				if geohash in self.GEOHASH_CATEGORY_DATABASE:
 					category_value_of_geohash = self.GEOHASH_CATEGORY_DATABASE[geohash]
-					geohash_and_category = f"{geohash} ({category_value_of_geohash})"
-					body_geohash_frequency += f"{geohash_and_category.ljust(15)}: {geohash_with_frecency[geohash][0]} chats, aktibo: {geohash_with_frecency[geohash][1]}\n"
+					geohash_and_category = f"{geohash}\n({category_value_of_geohash})"
+					chat_count_humanized = f"{geohash_with_frecency[geohash][0]} chats".ljust(WRAP_WIDTH)
+					body_geohash_frecency += [[geohash_and_category, textwrap.fill(f"{chat_count_humanized}(aktibo: {geohash_with_frecency[geohash][1]})", width=WRAP_WIDTH)]]
 				else:
-					body_geohash_frequency += f"{geohash.ljust(15)}: {geohash_with_frecency[geohash][0]} chats, aktibo: {geohash_with_frecency[geohash][1]}\n"
+					chat_count_humanized = f"{geohash_with_frecency[geohash][0]} chats".ljust(WRAP_WIDTH)
+					body_geohash_frecency += [[geohash, textwrap.fill(f"{chat_count_humanized}(aktibo: {geohash_with_frecency[geohash][1]})", width=WRAP_WIDTH)]]
+					
+					pass
 				five += 1
-			return body_geohash_frequency
+
+			return '\n' + tabulate(body_geohash_frecency, tablefmt="plain")
 
 	def add_recent_to_frequency(self, geohash_with_frequency: dict, fetched_data: list):
 		for a_geohash_with_frequency in geohash_with_frequency:
