@@ -208,6 +208,7 @@ class Config:
   	}
 		self.BITCHAT_EXPLORER_API = "https://bitchatexplorer.com/api/messages?limit=1000"
 		self.PH_COMPATIBLE = True 				# turn this off if not from ph
+		self.GMA_NEWS_NATION_RSS_FEED = "https://data.gmanetwork.com/gno/rss/news/nation/feed.xml"
 			
 class Sender:
 	def __init__(self):
@@ -335,7 +336,12 @@ class TestData:
 		self.nickname = "Glazer🇵🇭 bot" 
 		self.tags[0] = ["g", self.geohash]
 		self.tags[2] = ["n", self.nickname]
-		self.content = "nasan ang sabaw! - Baron" 
+		self.content = """
+📰 𝗥𝗼𝗺𝘂𝗮𝗹𝗱𝗲𝘇 𝘀𝘂𝗳𝗳𝗲𝗿𝗶𝗻𝗴 𝗳𝗿𝗼𝗺 𝗱𝗲𝗽𝗿𝗲𝘀𝘀𝗶𝘃𝗲 𝗱𝗶𝘀𝗼𝗿𝗱𝗲𝗿, 𝗮𝗻𝘅𝗶𝗲𝘁𝘆, 𝘀𝗮𝘆𝘀 𝗽𝘀𝘆𝗰𝗵𝗶𝗮𝘁𝗿𝗶𝘀𝘁
+🔎 Summary: Former speaker and Leyte 1st District Representative Martin Romualdez has been diagnosed with depressive disorder with anxiety, his psychiatrist Dr. Lourdes Ignacio said Friday.
+🔗 Link: https://www.gmanetwork.com/news/topstories/nation/1002031/romualdez-suffering-from-depressive-disorder-anxiety-says-psychiatrist/story
+
+		"""
 
 class Reader:
 	def __init__(self):
@@ -485,9 +491,6 @@ class Bot:
 
 		print(publish_response)
 
-class 
-
-
 if __name__ == '__main__':
 	config = Config()
 	PRIVATE_KEY = os.getenv("STATIC_PRIVATE_KEY")
@@ -498,18 +501,18 @@ if __name__ == '__main__':
 			menu()
 
 
-	# sender = Sender()
+	sender = Sender()
 
-	# test_data = TestData()
-	# proximity = ProximityRelay()
+	test_data = TestData()
+	proximity = ProximityRelay()
 
-	# relay_response = sender.send(
-	# 	test_data.GEOHASH_CHANNEL_KIND,
-	# 	test_data.tags,
-	# 	test_data.content,
-	# 	proximity.find_closest_relay(test_data.geohash)
-	# 	)
-	# print(relay_response)
+	relay_response = sender.send(
+		test_data.GEOHASH_CHANNEL_KIND,
+		test_data.tags,
+		test_data.content,
+		proximity.find_closest_relay(test_data.geohash)
+		)
+	print(relay_response)
 
 	# test = ProximityRelay()
 	# print(test.find_closest_relay("wd"))
