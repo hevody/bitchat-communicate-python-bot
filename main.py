@@ -583,7 +583,7 @@ Huwag pahuhuli sa balita 🗞 :
 
 'yan ready ka na!:)
 
-⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 3:00, 3:30)
+⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 2:30, 3:00, 3:30)
 
 !! Mabuhay mga Filipino Devs 👨🏻‍💻 !!
 
