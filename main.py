@@ -454,7 +454,7 @@ class RSS_XML_Reader:
 			news_content = f'📰 {fancipy(entry["title"], "snbd")}\n🔎 Summary: {summary}\n🔗 Link: {entry["link"][:-1]}\n\n'
 			news_contents += news_content
 
-		return news_contents + '\nBack to #wd'
+		return news_contents + '\nSource: GMA News\n\nBack to #wd'
 
 	def get_pag_asa_region_contents(self) -> dict:
 		d = feedparser.parse(Config().PAGASA_MAIN_RSS_FEED)
@@ -538,7 +538,72 @@ class Bot:
 			geohash_with_frequency[a_geohash_with_frequency].append(p_regex.translate_time_to_Filipino(readable_time))
 		
 		return geohash_with_frequency
+	
+	def send_current_pagasa_advisory(self) -> list[list]:
+		cached_ph_region_pagasa_contents = RSS_XML_Reader().get_pag_asa_region_contents()
+		weather_region_geohash = []
+		for ph_region in PH_REGIONS:
+			for region_pagasa_mentionded in cached_ph_region_pagasa_contents:
+				if region_pagasa_mentionded == ph_region:								
+					weather_tags = self.tags
+					weather_tags[0] = ["g", PH_REGIONS[ph_region][1]]
 
+					weather_response = Sender().send(
+						self.GEOHASH_CHANNEL_KIND,
+						weather_tags,
+						'\n' + cached_ph_region_pagasa_contents[region_pagasa_mentionded] + '\nSource: PAGASA (Philippine Atmospheric, Geophysical and Astronomical Services Administration)\n\nBack to #wd',
+						ProximityRelay().find_closest_relay(self.MAIN_GEOHASH)
+					)
+					print(weather_response)
+					weather_region_geohash += [[textwrap.fill(ph_region, width=15), f'#{PH_REGIONS[ph_region][1]}']]
+		return tabulate(weather_region_geohash, tablefmt="plain")
+
+	def heading_body_footer_wd(self):
+		heading = """ 
+👋 Maligayang pagdating sa #wd, ang main geohash channel ng Pilipinas! 🗺️🇵🇭🌊🌺🛺
+
+Ako si Glazer 🦊 Isang bot na dinevelop ng isang Filipino:3 Para sa Pilipinas, para sa kapuwa Filipino .𖥔 ݁ ˖ִ🛸༄˖°.
+
+Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magbahagi rin ng mga mahahalagang impormasyong may kinalaman sa Pilipinas at sa kapanan nating mga magkababayang Filipino. 💬❤️💡📩⭐
+"""
+		self.tips = """
+📌 Karaniwang tips sa paggamit ng BitChat:
+	1. I-enable ang Proof of Work ⛓️ - I-on mo nganiii 😤. Kung ayaw mo, e 'di bahala kang lusubin ng mga AI bots diyan ⚔️. Recommended: 15 bits of difficulty. 
+	2. Huwag kang bastos 🤬. Ayawkol! Wala mang rules dito 📜... Panatilihin pa rin ang diwa ng pagiging magalang 😇. Kapag binabastos na ay kusa ka nang lumayo.
+	3. Never never never never ever kang magbibigay ng passwords, OTP, o mga bagay na may kinalaman sa pera. Kita mo 'yan? 💸 Lumipad siya... Awts.
+	4. Hindi na to sakop ng Glazer bot ha... Puwede rin kayong gumamit ng !help as a command. 🙏🥺 Tutal. Wala... di ako huhugot HAHAAHHAHAHAA. Credits to glub.chat.    
+
+"""
+		body_frecency_heading = "Makihalubilo rin sa mga geohashes na ito 🥂💬 :\n(click the blue geohashes)\n"
+		
+		fetched_data_from_api = Reader().main()
+		frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
+		concatenate_recent = self.add_recent_to_frequency(
+			geohash_with_frequency=frequent_geohash_list_value, 
+			fetched_data=fetched_data_from_api)
+		body_frecency = self.make_body_frecency(
+			concatenate_recent
+		)
+		pagasa_header = "\n\nMaging updated sa lagay ng panahon 🌊🌳🌦️⛰️🏞️ :\n(click the blue geohashes)\n\n"
+
+		footer = """
+
+Huwag papahuli sa balita 🗞 :
+(click the blue geohashes)
+#phnews
+
+'yan ready ka na!:)
+
+⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 3:00, 3:30)
+
+!! Mabuhay ang mga Filipino Devs 👨🏻‍💻 !!
+
+
+
+made with ❤️ for Filipinos by Velocity 🐼"""
+
+		return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.send_current_pagasa_advisory() + footer
+		
 	def main(self):
 		reader = Reader()
 		sender = Sender()
@@ -546,68 +611,20 @@ class Bot:
 		config = Config()
 		r_x_reader = RSS_XML_Reader()
 
-
-		cached_ph_region_pagasa_contents = r_x_reader.get_pag_asa_region_contents()
-		weather_region_geohash = []
-		for ph_region in PH_REGIONS:
-			for region_pagasa_mentionded in cached_ph_region_pagasa_contents:
-				if region_pagasa_mentionded == ph_region:
-					# print(region_pagasa_mentionded)
-					# print(PH_REGIONS[ph_region][1])
-					# input(cached_ph_region_pagasa_contents[region_pagasa_mentionded])										
-
-					weather_tags = self.tags
-					weather_tags[0] = ["g", PH_REGIONS[ph_region][1]]
-
-					weather_response = sender.send(
-						self.GEOHASH_CHANNEL_KIND,
-						weather_tags,
-						'\n' + cached_ph_region_pagasa_contents[region_pagasa_mentionded] + '\nSource: PAGASA (Philippine Atmospheric, Geophysical and Astronomical Services Administration)\n\nBack to #wd',
-						proximity.find_closest_relay(self.MAIN_GEOHASH)
-					)
-					print(weather_response)
-					weather_region_geohash += [[textwrap.fill(ph_region, width=15), f'#{PH_REGIONS[ph_region][1]}']]
-
+		message_wd = self.heading_body_footer_wd()
 		self.tags[0] = ["g", self.MAIN_GEOHASH]
-
-		input(tabulate(weather_region_geohash, tablefmt="plain"))
-		test = sender.send(
-			self.GEOHASH_CHANNEL_KIND,
-			self.tags,
-			'\n' + tabulate(weather_region_geohash, tablefmt="plain"),
-			proximity.find_closest_relay(self.MAIN_GEOHASH)
-		)
-
-		print(test)
-		print('done')
-		input()
-
-		fetched_data_from_api = reader.main()
-
-		frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
 		
-		concatenate_recent = self.add_recent_to_frequency(
-			geohash_with_frequency=frequent_geohash_list_value, 
-			fetched_data=fetched_data_from_api)
-
-		body_frecency = self.make_body_frecency(
-				concatenate_recent
-			)
-
-		print(body_frecency)
-
-		# sending frecency
-		body_publish_response = sender.send(
+		# sending content to wd
+		wd_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
-			body_frecency,
+			message_wd,
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
-		print(body_publish_response)
-
-		self.tags[0] = ["g", config.NEWS_GEOHASH]
+		print(wd_publish_response)
 
 		# sending news
+		self.tags[0] = ["g", config.NEWS_GEOHASH]
 		news_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
