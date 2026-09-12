@@ -1,11 +1,6 @@
 import json
 import logging
-
 import os
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import cryptography_specific.generate_key as keygen
-
 from dotenv import (
 					load_dotenv,
 					find_dotenv,
@@ -18,7 +13,9 @@ import pygeohash
 import csv
 import math
 import requests
-from datetime import datetime, timezone
+from datetime import (
+					datetime, 
+					timezone)
 import humanize
 import re
 from tabulate import tabulate
@@ -29,23 +26,16 @@ from text_fancipy.fancipy import fancipy
 import xml.etree.ElementTree as ET
 from io import StringIO
 
-DOTENV_PATH = find_dotenv()
+load_dotenv()
 
-with open('regions.json') as f:
+DOTENV_PATH = find_dotenv()
+REGIONS_PATH = './databases/regions.json'
+BITCHAT_NOSTR_RELAY_PATH = './databases/nostr_relays.csv'
+
+with open(REGIONS_PATH) as f:
 	regions = json.load(fp=f)
 
 PH_REGIONS = regions["PH_REGIONS"]	
-
-def load_necessary_data() -> tuple[list, bool, str]:
-	load_dotenv()
-	with open("config.json") as f:
-		config = json.load(fp=f)
-	
-	relays = config["RELAYS"]
-	enable_proof_of_work = config["enable_proof_of_work"]
-	PRIVATE_KEY = os.getenv("STATIC_PRIVATE_KEY")
-
-	return relays, enable_proof_of_work, PRIVATE_KEY
 
 def menu():
 	cryptography_menu = CryptographySpecific()
@@ -202,7 +192,7 @@ class CryptographySpecific:
 
 class Config:
 	def __init__(self):
-		self.DEBUG = True
+		self.DEBUG = False
 		self.POW = True
 		self.LOG = True
 		self.USE_STATIC_PRIVATE_KEY = True
@@ -317,7 +307,7 @@ class ProximityRelay:
 
 	    lat_geohash, long_geohash = pygeohash.decode(geohash=geohash)
 
-	    with open('nostr_relays.csv', mode='r', newline='', encoding='utf-8') as file:
+	    with open(BITCHAT_NOSTR_RELAY_PATH, mode='r', newline='', encoding='utf-8') as file:
 	        dict_reader = csv.DictReader(file)
 	        for relay in dict_reader:
 	            calculated_displacement = self.calculate_displacement(
@@ -652,36 +642,7 @@ if __name__ == '__main__':
 		while True:
 			menu()
 
-
-	# sender = Sender()
-
-	# test_data = TestData()
-	# proximity = ProximityRelay()
-
-	# print(proximity.find_closest_relay(test_data.geohash)[1])
-	# relay_response = sender.send(
-	# 	test_data.GEOHASH_CHANNEL_KIND,
-	# 	test_data.tags,
-	# 	test_data.content,
-	# 	[proximity.find_closest_relay(test_data.geohash)[1]]
-	# 	)
-	# print(relay_response)
-
-	# test = ProximityRelay()
-	# print(test.find_closest_relay("wd"))
-
-	# test = Reader()
-	# print(test.main())
-
 	test = Bot()
 	test.main()
 
-	# print(proximity.find_closest_relay(test_data.geohash)[1])
-	# relay_response = sender.send(
-	# 	test_data.GEOHASH_CHANNEL_KIND,
-	# 	test_data.tags,
-	# 	test_data.content,
-	# 	[proximity.find_closest_relay(test_data.geohash)[1]]
-	# 	)
-	# print(relay_response)
 
