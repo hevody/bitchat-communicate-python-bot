@@ -18,7 +18,7 @@ import pygeohash
 import csv
 import math
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 import humanize
 import re
 from tabulate import tabulate
@@ -30,6 +30,11 @@ import xml.etree.ElementTree as ET
 from io import StringIO
 
 DOTENV_PATH = find_dotenv()
+
+with open('regions.json') as f:
+	regions = json.load(fp=f)
+
+PH_REGIONS = regions["PH_REGIONS"]	
 
 def load_necessary_data() -> tuple[list, bool, str]:
 	load_dotenv()
@@ -392,6 +397,49 @@ class RSS_XML_Reader:
 		self.GENERAL_HEADERS = config.GENERAL_HEADERS
 		self.reader = Reader()
 
+	def pagasa_by_region(self, entry_link: str):
+		region_report = Reader().perform_get_request(entry_link, Config().GENERAL_HEADERS)
+		root = ET.fromstring(region_report)
+		
+		ns = {'cap': 'urn:oasis:names:tc:emergency:cap:1.2'}
+		identifier = root.find('cap:identifier', ns)
+
+		for info in root.findall('cap:info', ns):
+		    headline = info.find('cap:headline', ns)
+		    description = info.find('cap:description', ns)
+		    instruction = info.find('cap:instruction', ns)
+
+		    return f"📢 {headline.text}\n🌤️🌧️💨🌨️ Description: {description.text}\n⚠️ Instruction: {instruction.text}\n"
+
+	def humanize_the_time(self, iso_time: str):
+		dt = datetime.fromisoformat(iso_time)
+		now = datetime.now(timezone.utc)
+		relative_time = humanize.naturaltime(now - dt)
+		return relative_time
+
+	def concatenate_link_content(self, categorized: dict):
+		region_and_its_content = {}
+		for region in categorized:
+			for entry in categorized[region]:
+				headers = f"{fancipy(entry[1], 'snbd')}\n🗓️ Updated: {entry[2]}\n\n"
+				body = self.pagasa_by_region(entry_link=entry[0])
+				region_and_its_content[region] = headers + body
+		return region_and_its_content
+
+	def categorizing_metadata_to_region(self, d: list[dict]):
+		categorized_metadata = {}
+		for region in PH_REGIONS:
+			region_pattern = re.compile(re.escape(PH_REGIONS[region][2]))
+			found_recent = False
+			for entry in d["entries"]:
+				if found_recent:
+					continue
+				if bool(re.search(region_pattern, entry["title"])):
+					humanized_time = self.humanize_the_time(entry["updated"])
+					categorized_metadata[region] = categorized_metadata.get(region, []) + [[entry["links"][0]["href"], entry["title"], humanized_time]]
+					found_recent = True
+		return categorized_metadata
+
 	def fetch_gma_ph_news(self):
 		news_contents = ''
 		
@@ -408,6 +456,11 @@ class RSS_XML_Reader:
 
 		return news_contents + '\nBack to #wd'
 
+	def get_pag_asa_region_contents(self) -> dict:
+		d = feedparser.parse(Config().PAGASA_MAIN_RSS_FEED)
+		categorized_from_main_pagasa = self.categorizing_metadata_to_region(d=d)
+
+		return self.concatenate_link_content(categorized_from_main_pagasa)
 
 class Bot:
 	# this bot will be sending a message every 30 minutes (ex. 2:00, 2:30, 3:00) based on GitHub actions
@@ -493,6 +546,42 @@ class Bot:
 		config = Config()
 		r_x_reader = RSS_XML_Reader()
 
+
+		cached_ph_region_pagasa_contents = r_x_reader.get_pag_asa_region_contents()
+		weather_region_geohash = []
+		for ph_region in PH_REGIONS:
+			for region_pagasa_mentionded in cached_ph_region_pagasa_contents:
+				if region_pagasa_mentionded == ph_region:
+					# print(region_pagasa_mentionded)
+					# print(PH_REGIONS[ph_region][1])
+					# input(cached_ph_region_pagasa_contents[region_pagasa_mentionded])										
+
+					weather_tags = self.tags
+					weather_tags[0] = ["g", PH_REGIONS[ph_region][1]]
+
+					weather_response = sender.send(
+						self.GEOHASH_CHANNEL_KIND,
+						weather_tags,
+						'\n' + cached_ph_region_pagasa_contents[region_pagasa_mentionded] + '\nSource: PAGASA (Philippine Atmospheric, Geophysical and Astronomical Services Administration)\n\nBack to #wd',
+						proximity.find_closest_relay(self.MAIN_GEOHASH)
+					)
+					print(weather_response)
+					weather_region_geohash += [[textwrap.fill(ph_region, width=15), f'#{PH_REGIONS[ph_region][1]}']]
+
+		self.tags[0] = ["g", self.MAIN_GEOHASH]
+
+		input(tabulate(weather_region_geohash, tablefmt="plain"))
+		test = sender.send(
+			self.GEOHASH_CHANNEL_KIND,
+			self.tags,
+			'\n' + tabulate(weather_region_geohash, tablefmt="plain"),
+			proximity.find_closest_relay(self.MAIN_GEOHASH)
+		)
+
+		print(test)
+		print('done')
+		input()
+
 		fetched_data_from_api = reader.main()
 
 		frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
@@ -507,6 +596,7 @@ class Bot:
 
 		print(body_frecency)
 
+		# sending frecency
 		body_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
@@ -517,6 +607,7 @@ class Bot:
 
 		self.tags[0] = ["g", config.NEWS_GEOHASH]
 
+		# sending news
 		news_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
@@ -525,6 +616,7 @@ class Bot:
 		)
 		print(news_publish_response)
 
+		# sending news was sent confirmation
 		self.tags[0] = ["g", self.MAIN_GEOHASH]
 		news_aware_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
@@ -565,9 +657,15 @@ if __name__ == '__main__':
 	# test = Reader()
 	# print(test.main())
 
-	# test = Bot()
-	# test.main()
+	test = Bot()
+	test.main()
 
-	r_x = RSS_XML_Reader()
-	# r_x.pagasa_by_region()
-	r_x.fetch_pagasa_main()
+	# print(proximity.find_closest_relay(test_data.geohash)[1])
+	# relay_response = sender.send(
+	# 	test_data.GEOHASH_CHANNEL_KIND,
+	# 	test_data.tags,
+	# 	test_data.content,
+	# 	[proximity.find_closest_relay(test_data.geohash)[1]]
+	# 	)
+	# print(relay_response)
+
