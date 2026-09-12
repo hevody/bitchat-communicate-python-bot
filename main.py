@@ -408,31 +408,6 @@ class RSS_XML_Reader:
 
 		return news_contents + '\nBack to #wd'
 
-	def fetch_pagasa_main(self):
-		d = feedparser.parse(self.PAGASA_MAIN_RSS_FEED)
-		# we need the Title, link, time updated,
-		for entry in d["entries"]:
-			print(entry["title"])
-			print(entry["updated"])
-			print(entry["links"][0]["href"])
-			print("=====")
-
-	def pagasa_by_region(self):
-		region_report = self.reader.perform_get_request('https://publicalert.pagasa.dost.gov.ph/output/gfa/2ab0ee00-6541-4a3e-b51e-88f64c48942e.cap', self.GENERAL_HEADERS)
-		root = ET.fromstring(region_report)
-		
-		
-		ns = {'cap': 'urn:oasis:names:tc:emergency:cap:1.2'}
-		identifier = root.find('cap:identifier', ns)
-
-		for info in root.findall('cap:info', ns):
-		    headline = info.find('cap:headline', ns)
-		    description = info.find('cap:description', ns)
-		    instruction = info.find('cap:instruction', ns)
-
-		    print(f"Headline: {headline.text}")
-		    print(f"Description: {description.text}")
-		    print(f"Instruction: {instruction.text}")
 
 class Bot:
 	# this bot will be sending a message every 30 minutes (ex. 2:00, 2:30, 3:00) based on GitHub actions
@@ -593,5 +568,6 @@ if __name__ == '__main__':
 	# test = Bot()
 	# test.main()
 
-	r_x = RSS_XML_READER()
-	r_x.pagasa_by_region()
+	r_x = RSS_XML_Reader()
+	# r_x.pagasa_by_region()
+	r_x.fetch_pagasa_main()
