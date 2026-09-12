@@ -554,7 +554,6 @@ class Bot:
 						'\n' + cached_ph_region_pagasa_contents[region_pagasa_mentionded] + '\nSource: PAGASA (Philippine Atmospheric, Geophysical and Astronomical Services Administration)\n\nBack to #wd',
 						ProximityRelay().find_closest_relay(self.MAIN_GEOHASH)
 					)
-					print(weather_response)
 					weather_region_geohash += [[textwrap.fill(ph_region, width=15), f'#{PH_REGIONS[ph_region][1]}']]
 		return tabulate(weather_region_geohash, tablefmt="plain")
 
@@ -588,7 +587,7 @@ Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magb
 
 		footer = """
 
-Huwag papahuli sa balita 🗞 :
+Huwag pahuhuli sa balita 🗞 :
 (click the blue geohashes)
 #phnews
 
@@ -596,7 +595,7 @@ Huwag papahuli sa balita 🗞 :
 
 ⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 3:00, 3:30)
 
-!! Mabuhay ang mga Filipino Devs 👨🏻‍💻 !!
+!! Mabuhay mga Filipino Devs 👨🏻‍💻 !!
 
 
 
@@ -621,7 +620,7 @@ made with ❤️ for Filipinos by Velocity 🐼"""
 			message_wd,
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
-		print(wd_publish_response)
+		
 
 		# sending news
 		self.tags[0] = ["g", config.NEWS_GEOHASH]
@@ -631,17 +630,17 @@ made with ❤️ for Filipinos by Velocity 🐼"""
 			r_x_reader.fetch_gma_ph_news(),
 			[proximity.find_closest_relay(config.NEWS_GEOHASH)[1]]
 		)
-		print(news_publish_response)
+		
 
 		# sending news was sent confirmation
 		self.tags[0] = ["g", self.MAIN_GEOHASH]
 		news_aware_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
-			"\n[*] Matagumpay na nakapagpadala ng balita mula sa Pilipinas ang bot\nBisitahin ang geohash na ito: #phnews",
+			"\n[*] Matagumpay na nakapagpadala ng balita mula sa Pilipinas ang bot\nBisitahin ang geohash na ito: #phnews\n\n[*] Matagumpay ring nakapagbahagi ng abiso patungkol sa lagay ng panahon.\nBasahin ang nasa itaas.",
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
-		print(news_aware_publish_response)
+		
 
 
 
