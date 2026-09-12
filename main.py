@@ -37,6 +37,8 @@ with open(REGIONS_PATH) as f:
 
 PH_REGIONS = regions["PH_REGIONS"]	
 
+
+
 def menu():
 	cryptography_menu = CryptographySpecific()
 
@@ -631,6 +633,7 @@ made with ❤️ for Filipinos by Velocity 🐼"""
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
 		
+		return news_aware_publish_response
 
 
 
