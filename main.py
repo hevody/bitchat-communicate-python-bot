@@ -446,7 +446,7 @@ class RSS_XML_Reader:
 			news_content = f'📰 {fancipy(entry["title"], "snbd")}\n🔎 Summary: {summary}\n🔗 Link: {entry["link"][:-1]}\n\n'
 			news_contents += news_content
 
-		return news_contents + '\nSource: GMA News\n\nBack to #wd'
+		return '\n' + news_contents + '\nSource: GMA News\n\nBack to #wd'
 
 	def get_pag_asa_region_contents(self) -> dict:
 		d = feedparser.parse(Config().PAGASA_MAIN_RSS_FEED)
