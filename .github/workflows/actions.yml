@@ -3,14 +3,14 @@ name: run bot.py
 on:
   schedule:
     - cron: '*/30 * * * *' # every 30 minutes
-
+  workflow_dispatch: 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
 
       - name: checkout repo content
-        uses: actions/checkout@v2 # checkout the repository content to github runner
+        uses: actions/checkout@v4 # checkout the repository content to github runner, updated to @v4
 
       - name: setup python
         uses: actions/setup-python@v5
