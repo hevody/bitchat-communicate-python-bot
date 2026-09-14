@@ -546,6 +546,15 @@ class Bot:
 						'\n' + cached_ph_region_pagasa_contents[region_pagasa_mentionded] + '\nSource: PAGASA (Philippine Atmospheric, Geophysical and Astronomical Services Administration)\n\nBack to #wd',
 						ProximityRelay().find_closest_relay(self.MAIN_GEOHASH)
 					)
+
+	def body_current_pagasa_advisory(self) -> list[list]:
+		cached_ph_region_pagasa_contents = RSS_XML_Reader().get_pag_asa_region_contents()
+		weather_region_geohash = []
+		for ph_region in PH_REGIONS:
+			for region_pagasa_mentionded in cached_ph_region_pagasa_contents:
+				if region_pagasa_mentionded == ph_region:								
+					weather_tags = self.tags
+					weather_tags[0] = ["g", PH_REGIONS[ph_region][1]]
 					weather_region_geohash += [[textwrap.fill(ph_region, width=15), f'#{PH_REGIONS[ph_region][1]}']]
 		return tabulate(weather_region_geohash, tablefmt="plain")
 
@@ -555,7 +564,7 @@ class Bot:
 
 Ako si Glazer 🦊 Isang bot na dinevelop ng isang Filipino:3 Para sa Pilipinas, para sa kapuwa Filipino .𖥔 ݁ ˖ִ🛸༄˖°.
 
-Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magbahagi rin ng mga mahahalagang impormasyong may kinalaman sa Pilipinas at sa kapanan nating mga magkababayang Filipino. 💬❤️💡📩⭐
+Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magbahagi rin ng mga mahahalagang impormasyong may kinalaman sa Pilipinas at sa kapakanan nating mga magkababayang Filipino. 💬❤️💡📩⭐
 """
 		self.tips = """
 📌 Karaniwang tips sa paggamit ng BitChat:
@@ -593,7 +602,7 @@ Huwag pahuhuli sa balita 🗞 :
 
 made with ❤️ for Filipinos by Velocity 🐼"""
 
-		return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.send_current_pagasa_advisory() + footer
+		return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
 		
 	def main(self):
 		reader = Reader()
@@ -623,6 +632,8 @@ made with ❤️ for Filipinos by Velocity 🐼"""
 			[proximity.find_closest_relay(config.NEWS_GEOHASH)[1]]
 		)
 		
+		# sends pagasa advisory
+		self.send_current_pagasa_advisory()
 
 		# sending news was sent confirmation
 		self.tags[0] = ["g", self.MAIN_GEOHASH]
