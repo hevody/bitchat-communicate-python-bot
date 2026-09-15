@@ -1,8 +1,17 @@
 import main
 import time
 from datetime import datetime
+from flask import Flask
+import os
+
+app = Flask(__name__)
+config = main.Config()
+bot = main.Bot()
 
 GEOHASH_REPLY_LIMIT = 35
+PORT = int(os.environ.get("PORT", 7860))
+PH_GEOHASHES = ["we", "wg", "wd", "wf", "w9", "wc", "w8", "wb"]
+BLOCKED_USERNAMES = ["lazer🇵🇭 Bot"]
 
 def scan_vicinity(fetched_data) -> dict[list]:
 	ph_geohash_with_users = {}
@@ -20,6 +29,9 @@ def scan_vicinity(fetched_data) -> dict[list]:
 	return ph_geohash_with_users
 
 def send_vicinity(vicinity_geohashes: dict):
+	tags = bot.tags
+	GEOHASH_KIND = bot.GEOHASH_CHANNEL_KIND
+
 	for geohash in vicinity_geohashes:
 		if geohash in replied_geohash:
 			continue
@@ -48,20 +60,13 @@ def send_vicinity(vicinity_geohashes: dict):
 def detect_abuse():
 	pass
  
-if __name__ == '__main__':
+def detect_and_reply():
 	print('[*] Program ran')
-	config = main.Config()
-	bot = main.Bot()
-
 	HEADERS = config.GENERAL_HEADERS
 	BC_EXPLORER_API = config.BITCHAT_EXPLORER_API
-	GEOHASH_KIND = bot.GEOHASH_CHANNEL_KIND
-	tags = bot.tags
-
-
-	PH_GEOHASHES = ["we", "wg", "wd", "wf", "w9", "wc", "w8", "wb"]
-	BLOCKED_USERNAMES = ["not_glazer", "lazer🇵🇭 Bot"]
-
+	
+		
+	global replied_geohash
 	replied_geohash = []
 	while True:
 		now = datetime.now()
@@ -86,3 +91,12 @@ if __name__ == '__main__':
 		time.sleep(1* 60)
 
 	print('[*] Prog breaks out the while loop')
+
+@app.route("/")
+def home():
+	detect_and_reply()
+	return "Wassup, bitchat"
+
+
+if __name__ == '__main__':
+	app.run(host="0.0.0.0", port=PORT)
