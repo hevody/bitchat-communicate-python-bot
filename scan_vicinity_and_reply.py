@@ -1,9 +1,11 @@
-import main
 import time
 from datetime import datetime
 from flask import Flask
 import os
 import threading
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import main
 
 app = Flask(__name__)
 config = main.Config()
