@@ -1,7 +1,8 @@
 import main
 import time
+from datetime import datetime
 
-GEOHASH_REPLY_LIMIT = 25
+GEOHASH_REPLY_LIMIT = 35
 
 def scan_vicinity(fetched_data) -> dict[list]:
 	ph_geohash_with_users = {}
@@ -20,6 +21,8 @@ def scan_vicinity(fetched_data) -> dict[list]:
 
 def send_vicinity(vicinity_geohashes: dict):
 	for geohash in vicinity_geohashes:
+		if geohash in replied_geohash:
+			continue
 		tagged_names = [f"@{username}" for username in vicinity_geohashes[geohash]]
 
 		tagged_names = list(set(tagged_names))
@@ -28,11 +31,11 @@ def send_vicinity(vicinity_geohashes: dict):
 		if len(tagged_names) == 1:
 			mention_in_message = tagged_names[0]
 		if len(tagged_names) == 2:
-			mention_in_message = " and ".join(tagged_names)
+			mention_in_message = " at ".join(tagged_names)
 		if len(tagged_names) > 2:
-			mention_in_message = ", ".join(tagged_names[:-1]) + ", and " + tagged_names[-1]
+			mention_in_message = ", ".join(tagged_names[:-1]) + ", at " + tagged_names[-1]
 		
-		message = f"Hi, {mention_in_message}!"
+		message = f"Kumusta, {mention_in_message}!"
 
 		tags[0] = ["g", geohash]
 		response = main.Sender().send(	
@@ -41,8 +44,12 @@ def send_vicinity(vicinity_geohashes: dict):
 						content=message,
 						relays=main.ProximityRelay().find_closest_relay(geohash))
 		print(response)
+
+def detect_abuse():
+	pass
  
 if __name__ == '__main__':
+	print('[*] Program ran')
 	config = main.Config()
 	bot = main.Bot()
 
@@ -55,9 +62,27 @@ if __name__ == '__main__':
 	PH_GEOHASHES = ["we", "wg", "wd", "wf", "w9", "wc", "w8", "wb"]
 	BLOCKED_USERNAMES = ["not_glazer", "lazer🇵🇭 Bot"]
 
+	replied_geohash = []
 	while True:
+		now = datetime.now()
+		if now.strftime("%M") == "8" or now.strftime("%M") == "38":		# breaks at minute 8 and 38, wait for cron ping to run again
+			break
+		if len(replied_geohash) > GEOHASH_REPLY_LIMIT:
+			break
+		
+
+
 		fetched_data = main.Reader().perform_get_request(BC_EXPLORER_API, HEADERS)
 		geohash_and_its_users = scan_vicinity(fetched_data)
 		send_vicinity(geohash_and_its_users)
+		
+		unique_geohash_reply = list(set(list(geohash_and_its_users)) - set(replied_geohash))
 
-		time.sleep(1 * 60)
+
+		replied_geohash += unique_geohash_reply
+
+		
+		print("[*] Sleeping for 60 seconds")
+		time.sleep(1* 60)
+
+	print('[*] Prog breaks out the while loop')
