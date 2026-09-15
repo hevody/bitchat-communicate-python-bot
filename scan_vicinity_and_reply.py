@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from flask import Flask
 import os
+import threading
 
 app = Flask(__name__)
 config = main.Config()
@@ -57,9 +58,6 @@ def send_vicinity(vicinity_geohashes: dict):
 						relays=main.ProximityRelay().find_closest_relay(geohash))
 		print(response)
 
-def detect_abuse():
-	pass
- 
 def detect_and_reply():
 	print('[*] Program ran')
 	HEADERS = config.GENERAL_HEADERS
@@ -86,15 +84,14 @@ def detect_and_reply():
 
 		replied_geohash += unique_geohash_reply
 
-		
-		print("[*] Sleeping for 60 seconds")
+		print('[*] Sleeping for 60 seconds')
 		time.sleep(1* 60)
 
-	print('[*] Prog breaks out the while loop')
 
 @app.route("/")
 def home():
-	detect_and_reply()
+	dr_thread = threading.Thread(target=detect_and_reply)
+	dr_thread.start()
 	return "Wassup, bitchat"
 
 
