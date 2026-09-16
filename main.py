@@ -481,14 +481,20 @@ class Bot:
       "#d3": "Latinos",
       "#qq": "Indonesians",
       "#u1": "French",
-      "#tt": "Pakistanis"
+      "#tt": "Pakistanis",
+			"#6g": "Brazilians"
     }
+
+		self.BLOCKED_PUBKEYS = ["ad8224492887a4b66795d0a8026a201226aeae67548631586d7a83dd40bf2707"]
 
 	def frequency_geohash(self, fetched_data) -> dict:
 		geohash_with_frequency= {}
 		for fetched_datum in fetched_data:
+			if fetched_datum["nostrPubkey"] in self.BLOCKED_PUBKEYS:
+				continue
 			if fetched_datum["geohash"] in self.BLOCKED_GEOHASHES:
 				continue
+
 			geohash_with_frequency[fetched_datum["channel"]] = geohash_with_frequency.get(fetched_datum["channel"], 0) + 1
 
 		descending_geohash_with_frequency = dict(sorted(geohash_with_frequency.items(), key=lambda item: item[1], reverse=True))
