@@ -485,7 +485,10 @@ class Bot:
 			"#6g": "Brazilians"
     }
 
-		self.BLOCKED_PUBKEYS = ["ad8224492887a4b66795d0a8026a201226aeae67548631586d7a83dd40bf2707"]
+		self.BLOCKED_PUBKEYS = [
+			"ad8224492887a4b66795d0a8026a201226aeae67548631586d7a83dd40bf2707",
+			"a13d0cca4316d76227dcaabc59d22a0bd63ad73d723355c3645c66408dc9223a"
+			]
 
 	def frequency_geohash(self, fetched_data) -> dict:
 		geohash_with_frequency= {}
