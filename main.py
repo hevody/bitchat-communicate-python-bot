@@ -368,6 +368,7 @@ class PerformRegex:
 
 	def translate_time_to_Filipino(self, contents: str):
 		PATTERNS = {
+			"now_pattern": [re.compile(r"now"), "ngayon (posibleng raid)"],
 			"second_pattern": [re.compile(r"a second ago"), "isang segundo na ang nakalipas"],
 			"seconds_pattern": [re.compile(r"seconds ago"), "segundo na ang nakalipas"],
 			"minute_pattern": [re.compile("a minute ago"), "isang minuto na ang nakalipas"],
@@ -658,7 +659,5 @@ if __name__ == '__main__':
 		while True:
 			menu()
 
-	test = Bot()
-	test.main()
 
 
