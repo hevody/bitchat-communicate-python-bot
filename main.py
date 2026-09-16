@@ -24,11 +24,15 @@ import feedparser
 from bs4 import BeautifulSoup
 from text_fancipy.fancipy import fancipy
 import xml.etree.ElementTree as ET
-from io import StringIO
+from pathlib import Path
 
 load_dotenv()
 
 DOTENV_PATH = find_dotenv()
+if DOTENV_PATH == '':
+	DOTENV_PATH = Path.cwd() / ".env"
+	DOTENV_PATH.touch(exist_ok=True)
+
 REGIONS_PATH = './databases/regions.json'
 BITCHAT_NOSTR_RELAY_PATH = './databases/nostr_relays.csv'
 
@@ -36,7 +40,6 @@ with open(REGIONS_PATH) as f:
 	regions = json.load(fp=f)
 
 PH_REGIONS = regions["PH_REGIONS"]	
-
 
 
 def menu():
@@ -301,33 +304,33 @@ class ProximityRelay:
 
 	def calculate_displacement(self, lat_relay: float, long_relay: float, lat_geohash: float, long_geohash: float) -> float:
 
-	    displacement = math.sqrt(((lat_relay - lat_geohash)**2) + ((long_relay - long_geohash)**2))
-	    return displacement
+		displacement = math.sqrt(((lat_relay - lat_geohash)**2) + ((long_relay - long_geohash)**2))
+		return displacement
 
 	def find_closest_relay(self, geohash: str) -> list:
-	    relay_proximity = {}
+		relay_proximity = {}
 
-	    lat_geohash, long_geohash = pygeohash.decode(geohash=geohash)
+		lat_geohash, long_geohash = pygeohash.decode(geohash=geohash)
 
-	    with open(BITCHAT_NOSTR_RELAY_PATH, mode='r', newline='', encoding='utf-8') as file:
-	        dict_reader = csv.DictReader(file)
-	        for relay in dict_reader:
-	            calculated_displacement = self.calculate_displacement(
-	                    lat_relay=float(relay["Latitude"]),
-	                    long_relay=float(relay["Longitude"]),
-	                    lat_geohash=lat_geohash,
-	                    long_geohash=long_geohash
-	                )
+		with open(BITCHAT_NOSTR_RELAY_PATH, mode='r', newline='', encoding='utf-8') as file:
+				dict_reader = csv.DictReader(file)
+				for relay in dict_reader:
+						calculated_displacement = self.calculate_displacement(
+										lat_relay=float(relay["Latitude"]),
+										long_relay=float(relay["Longitude"]),
+										lat_geohash=lat_geohash,
+										long_geohash=long_geohash
+								)
 
-	            relay_proximity[f'wss://{relay["Relay URL"]}'] = calculated_displacement
+						relay_proximity[f'wss://{relay["Relay URL"]}'] = calculated_displacement
 
-	    relay_proximity_sorted = dict(sorted(relay_proximity.items(), key=lambda item: item[1]))
-	    list_form_rps = list(relay_proximity_sorted) 
+		relay_proximity_sorted = dict(sorted(relay_proximity.items(), key=lambda item: item[1]))
+		list_form_rps = list(relay_proximity_sorted) 
 
-	    if self.PH_COMPATIBLE and geohash.startswith('w'):
-	    	list_form_rps.insert(0, "wss://nostr-01.yakihonne.com")
+		if self.PH_COMPATIBLE and geohash.startswith('w'):
+			list_form_rps.insert(0, "wss://nostr-01.yakihonne.com")
 
-	    return list_form_rps
+		return list_form_rps
 
 class TestData:
 	def __init__(self):
@@ -347,13 +350,13 @@ class Reader:
 		self.BITCHAT_EXPLORER_API = config.BITCHAT_EXPLORER_API
 
 	def perform_get_request(self, url: str, specific_headers: str) -> dict | str:
-	  logging.info('[*] Performing a GET request')
-	  response = requests.get(url, headers=specific_headers)
+		logging.info('[*] Performing a GET request')
+		response = requests.get(url, headers=specific_headers)
 
-	  if response.headers.get("Content-Type", "") == 'application/json; charset=utf-8':
-	    return response.json()
-	  else:
-	    return response.text
+		if response.headers.get("Content-Type", "") == 'application/json; charset=utf-8':
+			return response.json()
+		else:
+			return response.text
 
 	def main(self):
 		bitLiteralChats = self.perform_get_request(url=self.BITCHAT_EXPLORER_API, specific_headers=self.GENERAL_HEADERS)
@@ -397,11 +400,11 @@ class RSS_XML_Reader:
 		identifier = root.find('cap:identifier', ns)
 
 		for info in root.findall('cap:info', ns):
-		    headline = info.find('cap:headline', ns)
-		    description = info.find('cap:description', ns)
-		    instruction = info.find('cap:instruction', ns)
+			headline = info.find('cap:headline', ns)
+			description = info.find('cap:description', ns)
+			instruction = info.find('cap:instruction', ns)
 
-		    return f"📢 {headline.text}\n🌤️🌧️💨🌨️ Description: {description.text}\n⚠️ Instruction: {instruction.text}\n"
+			return f"📢 {headline.text}\n🌤️🌧️💨🌨️ Description: {description.text}\n⚠️ Instruction: {instruction.text}\n"
 
 	def humanize_the_time(self, iso_time: str):
 		dt = datetime.fromisoformat(iso_time)
@@ -594,7 +597,7 @@ Huwag pahuhuli sa balita 🗞 :
 
 'yan ready ka na!:)
 
-⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 2:30, 3:00, 3:30)
+⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 2:47, 3:17, 3:47)
 
 !! Mabuhay mga Filipino Devs 👨🏻‍💻 !!
 
@@ -645,7 +648,6 @@ made with ❤️ for Filipinos by Velocity 🐼"""
 		)
 		
 		return news_aware_publish_response
-
 
 
 if __name__ == '__main__':
