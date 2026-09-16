@@ -589,14 +589,14 @@ Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magb
 """
 		body_frecency_heading = "Makihalubilo rin sa mga geohashes na ito 🥂💬 :\n(click the blue geohashes)\n"
 		
-		fetched_data_from_api = Reader().main()
-		frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
-		concatenate_recent = self.add_recent_to_frequency(
-			geohash_with_frequency=frequent_geohash_list_value, 
-			fetched_data=fetched_data_from_api)
-		body_frecency = self.make_body_frecency(
-			concatenate_recent
-		)
+		# fetched_data_from_api = Reader().main()
+		# frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
+		# concatenate_recent = self.add_recent_to_frequency(
+		# 	geohash_with_frequency=frequent_geohash_list_value, 
+		# 	fetched_data=fetched_data_from_api)
+		# body_frecency = self.make_body_frecency(
+		# 	concatenate_recent
+		# )
 		pagasa_header = "\n\nMaging updated sa lagay ng panahon 🌊🌳🌦️⛰️🏞️ :\n(click the blue geohashes)\n\n"
 
 		footer = """
@@ -615,8 +615,9 @@ Huwag pahuhuli sa balita 🗞 :
 
 made with ❤️ for Filipinos by Velocity 🐼"""
 
-		return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
-		
+		# return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
+		return heading + self.tips + pagasa_header + self.body_current_pagasa_advisory() + footer
+				
 	def main(self):
 		reader = Reader()
 		sender = Sender()
@@ -634,6 +635,7 @@ made with ❤️ for Filipinos by Velocity 🐼"""
 			message_wd,
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
+		print(wd_publish_response)
 		
 
 		# sending news
