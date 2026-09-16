@@ -469,7 +469,7 @@ class Bot:
 		self.tags[2] = ["n", self.nickname]
 
 
-		self.BLOCKED_GEOHASHES = ["hrmpzfv0z5z", "6g", "SENTRYHUB", "wd", "test", "phnews", "sentryhub"]
+		self.BLOCKED_GEOHASHES = ["6g", "SENTRYHUB", "wd", "test", "phnews", "sentryhub"]
 		self.GEOHASH_CATEGORY_DATABASE = {
       "#st": "Egyptians",
       "#wd": "Filipinos",
