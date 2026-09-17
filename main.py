@@ -635,7 +635,6 @@ made with ❤️ for Filipinos by Velocity 🐼"""
 			message_wd,
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
-		print(wd_publish_response)
 		
 
 		# sending news
