@@ -1,11 +1,11 @@
 import json
-import asyncio
-from websockets.asyncio.client import connect
-from websockets.exceptions import (	ConnectionClosed,
-									InvalidStatus)
+import asyncio 
+import websockets.exceptions 
 import websockets
 
-with open('config.json') as f:
+CONFIG_PATH = './legacy/config.json'
+
+with open(CONFIG_PATH) as f:
 	settings = json.load(fp=f)
 
 RELAYS = settings["RELAYS"]
@@ -27,20 +27,21 @@ async def client(relay):
                 open_timeout=20,
             ) as websocket:
 
-                #print(f"Connected to {relay}")
+                # print(f"Connected to {relay}")
                 await websocket.send(SUBSC_RELAY_MESSAGE)
                 delay = 5
 
                 # Your normal websocket work goes here
                 msg = await websocket.recv()
                 message_jsonify = json.loads(msg)
-                try:
-                    if message_jsonify[2]['tags'][0][1] == 'wd':
-                        print(message_jsonify)
-                    if message_jsonify[2]['tags'][1][1] == 'glazer':
-                        print
-                        print(message_jsonify)
-                except: pass
+                # try:
+                #     if message_jsonify[2]['tags'][0][1] == 'wd':
+                #         print(message_jsonify)
+                #     if message_jsonify[2]['tags'][1][1] == 'glazer':
+                #         print
+                #         print(message_jsonify)
+                # except: pass
+                print(message_jsonify)
 
 
         except websockets.exceptions.InvalidStatus as e:
