@@ -614,7 +614,9 @@ Huwag pahuhuli sa balita 🗞 :
 
 
 
-made with ❤️ for Filipinos by Velocity 🐼"""
+made with ❤️ for Filipinos by Velocity🐼
+read my blog: https://hevody.github.io/velocity-labs/bitchat-blog
+"""
 
 		# return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
 		return heading + self.tips + pagasa_header + self.body_current_pagasa_advisory() + footer
