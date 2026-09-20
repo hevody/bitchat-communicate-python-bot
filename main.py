@@ -615,7 +615,6 @@ Huwag pahuhuli sa balita 🗞 :
 
 
 made with ❤️ for Filipinos by Velocity🐼
-read my blog: https://hevody.github.io/velocity-labs/bitchat-blog
 """
 
 		# return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
@@ -657,7 +656,7 @@ read my blog: https://hevody.github.io/velocity-labs/bitchat-blog
 		news_aware_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
-			"\n[*] Matagumpay na nakapagpadala ng balita mula sa Pilipinas ang bot\nBisitahin ang geohash na ito: #phnews\n\n[*] Matagumpay ring nakapagbahagi ng abiso patungkol sa lagay ng panahon.\nBasahin ang nasa itaas.",
+			"\n[*] Matagumpay na nakapagpadala ng balita mula sa Pilipinas ang bot\nBisitahin ang geohash na ito: #phnews\n\n[*] Matagumpay ring nakapagbahagi ng abiso patungkol sa lagay ng panahon.\nBasahin ang nasa itaas.\n\nread my blog: https://hevody.github.io/velocity-labs/bitchat-blog",
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
 		
