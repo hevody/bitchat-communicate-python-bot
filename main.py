@@ -614,6 +614,7 @@ Huwag pahuhuli sa balita 🗞 :
 
 
 read my blog: https://hevody.github.io/velocity-labs/bitchat-blog
+
 made with ❤️ for Filipinos by Velocity🐼
 """
 
