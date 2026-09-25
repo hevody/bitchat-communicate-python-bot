@@ -348,10 +348,14 @@ class Reader:
 		config = Config()
 		self.GENERAL_HEADERS = config.GENERAL_HEADERS
 		self.BITCHAT_EXPLORER_API = config.BITCHAT_EXPLORER_API
+		self.GET_TIMEOUT = 30
 
-	def perform_get_request(self, url: str, specific_headers: str) -> dict | str:
+	def perform_get_request(self, url: str, specific_headers: str) -> dict | str | bool:
 		logging.info('[*] Performing a GET request')
-		response = requests.get(url, headers=specific_headers)
+		try: 
+			response = requests.get(url, headers=specific_headers, timeout=self.GET_TIMEOUT)
+		except requests.exceptions.Timeout:
+			return False
 
 		if response.headers.get("Content-Type", "") == 'application/json; charset=utf-8':
 			return response.json()
@@ -586,17 +590,23 @@ Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magb
 	3. Panatilihin pa rin ang pagiging magalang. Huwag toxic.
 	4. Huwag magbabahagi ng anumang impormasyon patungkol sa passwords, OTP, o anumang bagay na may kinalamam sa pera. 
 	5. Gamitin ang !help command: credits to glub.chat 
+
 """
 		body_frecency_heading = "Makihalubilo rin sa mga geohashes na ito 🥂💬 :\n(click the blue geohashes)\n"
 		
-		# fetched_data_from_api = Reader().main()
-		# frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
-		# concatenate_recent = self.add_recent_to_frequency(
-		# 	geohash_with_frequency=frequent_geohash_list_value, 
-		# 	fetched_data=fetched_data_from_api)
-		# body_frecency = self.make_body_frecency(
-		# 	concatenate_recent
-		# )
+		fetched_data_from_api = Reader().main()
+		if not fetched_data_from_api:
+			body_frecency = ""
+			body_frecency_heading = ""
+		else:
+			frequent_geohash_list_value = self.frequency_geohash(fetched_data_from_api)
+			concatenate_recent = self.add_recent_to_frequency(
+				geohash_with_frequency=frequent_geohash_list_value, 
+				fetched_data=fetched_data_from_api)
+			body_frecency = self.make_body_frecency(
+				concatenate_recent
+			)
+
 		pagasa_header = "\n\nMaging updated sa lagay ng panahon 🌊🌳🌦️⛰️🏞️ :\n(click the blue geohashes)\n\n"
 
 		footer = """
@@ -615,8 +625,8 @@ made with ❤️ for Filipinos by Velocity🐼
 ⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 2:47, 3:17, 3:47)
 """
 
-		# return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
-		return heading + self.tips + pagasa_header + self.body_current_pagasa_advisory() + footer
+		return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
+		# return heading + self.tips + pagasa_header + self.body_current_pagasa_advisory() + footer
 				
 	def main(self):
 		reader = Reader()
