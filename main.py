@@ -467,6 +467,7 @@ class Bot:
 	def __init__(self):
 		self.nickname = "Glazer🇵🇭 Bot"
 		self.MAIN_GEOHASH = "wd"
+		self.SUBGEOHASH = "wd1"
 		self.GEOHASH_CHANNEL_KIND = 20000
 		self.tags = [[], ["t", "teleport"], []]
 		self.tags[0] = ["g", self.MAIN_GEOHASH]
@@ -640,7 +641,7 @@ made with ❤️ for Filipinos by Velocity🐼
 		
 
 
-	def main(self):
+	def main(self, sub_geohash=False) -> list:		# return a list from the nostr relay's response
 		reader = Reader()
 		sender = Sender()
 		proximity = ProximityRelay()
@@ -648,7 +649,10 @@ made with ❤️ for Filipinos by Velocity🐼
 		r_x_reader = RSS_XML_Reader()
 
 		message_wd = self.heading_body_footer_wd()
-		self.tags[0] = ["g", self.MAIN_GEOHASH]
+		if sub_geohash:
+			self.tags[0] = ["g", self.SUBGEOHASH]
+		else:
+			self.tags[0] = ["g", self.MAIN_GEOHASH]
 		
 		# sending content to wd
 		wd_publish_response = sender.send(
