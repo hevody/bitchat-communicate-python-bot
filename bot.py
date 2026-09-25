@@ -61,7 +61,7 @@ if __name__ == '__main__':
     stop_message = "Ang bot ay pansamantalang hindi makakapag-send ng mga mensahe sa loob ng isang oras... I-extend? .stop"
 
     if stop_bot():
-        weather_response = Sender().send(
+        send_stopped_response = Sender().send(
                                 20000,
                                 Bot().tags,
                                 stop_message,

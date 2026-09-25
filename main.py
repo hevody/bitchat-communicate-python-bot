@@ -575,6 +575,14 @@ class Bot:
 					weather_region_geohash += [[textwrap.fill(ph_region, width=15), f'#{PH_REGIONS[ph_region][1]}']]
 		return tabulate(weather_region_geohash, tablefmt="plain")
 
+	def stop_feature_message(self):
+		WRAP_WIDTH = 20
+		header_message = "Pansamantalang ihinto ang bot? ⛔\n"
+		body_message_list = [[".stop", textwrap.fill("Ihinto ang bot sa loob ng isang oras", width=WRAP_WIDTH)],
+		                     [".override", textwrap.fill("Huwag pansininin ang naunang .stop na command", WRAP_WIDTH)]]
+
+		return header_message + tabulate(body_message_list, tablefmt="plain")
+
 	def heading_body_footer_wd(self):
 		heading = """ 
 👋 Maligayang pagdating sa #wd, ang main geohash channel ng Pilipinas! 🗺️🇵🇭🌊🌺🛺
@@ -627,7 +635,11 @@ made with ❤️ for Filipinos by Velocity🐼
 
 		return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
 		# return heading + self.tips + pagasa_header + self.body_current_pagasa_advisory() + footer
-				
+
+
+		
+
+
 	def main(self):
 		reader = Reader()
 		sender = Sender()
@@ -664,7 +676,7 @@ made with ❤️ for Filipinos by Velocity🐼
 		news_aware_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
-			"\n[*] Matagumpay na nakapagbahagi ng balita mula sa Pilipinas ang bot\nBisitahin ang geohash na ito: #phnews\n\n[*] Matagumpay ring nakapagbahagi ng abiso patungkol sa lagay ng panahon.\nBasahin ang nasa itaas.\n\nOpen BitChat or other geohash Nostr clients for a more seamless experience.\nRead my blog: hevody.github.io/velocity-labs/bitchat-blog",
+			f"\n[*] Matagumpay na nakapagbahagi ng balita mula sa Pilipinas ang bot\nBisitahin ang geohash na ito: #phnews\n\n[*] Matagumpay ring nakapagbahagi ng abiso patungkol sa lagay ng panahon.\nBasahin ang nasa itaas.\n\nOpen BitChat or other geohash Nostr clients for a more seamless experience.\nRead my blog: hevody.github.io/velocity-labs/bitchat-blog\n\n{self.stop_feature_message()}",
 			proximity.find_closest_relay(self.MAIN_GEOHASH)
 		)
 		
@@ -678,6 +690,3 @@ if __name__ == '__main__':
 		HeadingArt()
 		while True:
 			menu()
-
-
-
