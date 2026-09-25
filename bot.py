@@ -62,14 +62,14 @@ def stop_bot() -> tuple[bool, str]: # need time, wd geohash, content # convert t
 if __name__ == '__main__':
     if stop_bot()[0]:
         stop_message = f"Ang bot ay pansamantalang hindi makakapagpadala ng mga mensahe hanggang {stop_bot()[1]} ... I-extend? send .stop\nPara sa karagdang impormasyon pumunta sa #wd1"
-        send_stopped_response = Sender().send(
-                                20000,
-                                Bot().tags,
-                                stop_message,
-                                ProximityRelay().find_closest_relay(Bot().MAIN_GEOHASH)
-                            )
         bot_response_stopped = Bot.main(sub_geohash=True)
         logger.info(f"Bot's response: {bot_response_stopped}")
+        send_stopped_response = Sender().send(
+                                        20000,
+                                        Bot().tags,
+                                        stop_message,
+                                        ProximityRelay().find_closest_relay(Bot().MAIN_GEOHASH)
+                                    )
     else:
         bot_response = Bot().main()
         logger.info(f"Bot's response: {bot_response}")
