@@ -584,9 +584,13 @@ class Bot:
 
 		return header_message + tabulate(body_message_list, tablefmt="plain")
 
-	def heading_body_footer_wd(self):
-		heading = """ 
-👋 Maligayang pagdating sa #wd, ang main geohash channel ng Pilipinas! 🗺️🇵🇭🌊🌺🛺
+	def heading_body_footer_send(self, sub_geohash=False):
+		if sub_geohash:
+			heading_initial = f"\n👋 Tropa, kumusta ang buhay buhay? Ikaw ay nasa #{self.SUBGEOHASH}, ang sub-geohash channel ng Pilipinas! 🗺️🇵🇭🌊🌺🛺"
+		else:
+			heading_initial = f"\n👋 Maligayang pagdating sa #{self.MAIN_GEOHASH}, ang main geohash channel ng Pilipinas! 🗺️🇵🇭🌊🌺🛺"
+		
+		heading = f""" 
 
 Ako si Glazer 🦊 Isang bot na dinevelop ng isang Filipino:3 Para sa Pilipinas, para sa kapuwa Filipino .𖥔 ݁ ˖ִ🛸༄˖°.
 
@@ -634,7 +638,7 @@ made with ❤️ for Filipinos by Velocity🐼
 ⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 2:47, 3:17, 3:47)
 """
 
-		return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
+		return heading_initial + heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
 		# return heading + self.tips + pagasa_header + self.body_current_pagasa_advisory() + footer
 
 
@@ -648,7 +652,7 @@ made with ❤️ for Filipinos by Velocity🐼
 		config = Config()
 		r_x_reader = RSS_XML_Reader()
 
-		message_wd = self.heading_body_footer_wd()
+		message_wd = self.heading_body_footer_send(sub_geohash=sub_geohash)
 		if sub_geohash:
 			self.tags[0] = ["g", self.SUBGEOHASH]
 		else:
