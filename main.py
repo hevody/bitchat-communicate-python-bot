@@ -612,7 +612,7 @@ Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magb
 		footer = """
 
 Huwag pahuhuli sa balita 🗞 :
-(click the blue geohashes)
+(click the blue geohash)
 #phnews
 
 
