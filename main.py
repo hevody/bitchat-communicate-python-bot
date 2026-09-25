@@ -581,12 +581,11 @@ Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magb
 """
 		self.tips = """
 📌 Karaniwang tips sa paggamit ng BitChat:
-	1. I-enable ang Proof of Work ⛓️ - I-on mo nganiii 😤. Kung ayaw mo, e 'di bahala kang lusubin ng mga AI bots diyan ⚔️. Recommended: 15 bits of difficulty. 
-	2. Huwag kang bastos 🤬. Iwasan ang pagiging seksuwal at panghaharas dahil may mga menor de edad din dito. Kapag nakararanas ng pambabastos ay kusa ka nang lumayo.
-	3. Wala mang rules dito ay huwag kang toxic haliparot ka 📜... Panatilihin pa rin ang diwa ng pagiging magalang 😇. 
-	4. Never never never never ever kang magbibigay ng passwords, OTP, o mga bagay na may kinalaman sa pera. Kita mo 'yan? 💸 Lumipad siya... Awts.
-	5. Hindi na to sakop ng Glazer bot ha... Puwede rin kayong gumamit ng !help as a command. 🙏🥺 Tutal. Wala... di ako huhugot HAHAAHHAHAHAA. Credits to glub.chat.    
-
+	1. I-enable ang Proof of Work. Recommended: 15 bits of difficulty. 
+	2. Huwag bastos. Iwasan ang pagiging seksuwal at panghaharas. 
+	3. Panatilihin pa rin ang pagiging magalang. Huwag toxic.
+	4. Huwag magbabahagi ng anumang impormasyon patungkol sa passwords, OTP, o anumang bagay na may kinalamam sa pera. 
+	5. Gamitin ang !help command: credits to glub.chat 
 """
 		body_frecency_heading = "Makihalubilo rin sa mga geohashes na ito 🥂💬 :\n(click the blue geohashes)\n"
 		
