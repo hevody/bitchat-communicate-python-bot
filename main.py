@@ -577,7 +577,7 @@ class Bot:
 
 Ako si Glazer 🦊 Isang bot na dinevelop ng isang Filipino:3 Para sa Pilipinas, para sa kapuwa Filipino .𖥔 ݁ ˖ִ🛸༄˖°.
 
-Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magbahagi rin ng mga mahahalagang impormasyong may kinalaman sa Pilipinas at sa kapakanan nating mga magkababayang Filipino. 💬❤️💡📩⭐
+Narito ako upang kayo ay magabayan sa pasikot-sikot ng BitChat app at upang magbahagi rin ng mga mahahalagang impormasyong may kinalaman sa Pilipinas at sa kapakanan nating mga magkababayang Filipino. 😉
 """
 		self.tips = """
 📌 Karaniwang tips sa paggamit ng BitChat:
@@ -612,7 +612,7 @@ made with ❤️ for Filipinos by Velocity🐼
 
 
 
-⏳ ang chat na ito ay sinesend tuwing 30 minuto lamang (Halimbawa: 2:47, 3:17, 3:47)
+⏳ ang chat na ito ay sinesend lamang tuwing 30 minuto (Halimbawa: 2:47, 3:17, 3:47)
 """
 
 		# return heading + self.tips + body_frecency_heading + body_frecency + pagasa_header + self.body_current_pagasa_advisory() + footer
