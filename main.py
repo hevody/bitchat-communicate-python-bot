@@ -680,7 +680,12 @@ made with ❤️ for Filipinos by Velocity🐼
 		self.send_current_pagasa_advisory()
 
 		# sending news was sent confirmation
-		self.tags[0] = ["g", self.MAIN_GEOHASH]
+
+		if sub_geohash:
+			self.tags[0] = ["g", self.SUBGEOHASH]
+		else:
+			self.tags[0] = ["g", self.MAIN_GEOHASH]
+
 		news_aware_publish_response = sender.send(
 			self.GEOHASH_CHANNEL_KIND,
 			self.tags,
