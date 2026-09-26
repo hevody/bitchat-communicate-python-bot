@@ -58,6 +58,7 @@ def stop_bot() -> tuple[bool, str]: # need time, wd geohash, content # convert t
             return (False,)
         if fetched_datum["geohash"] == "wd" and fetched_datum["content"].endswith(".stop") and in_target_time(fetched_datum["timestamp"]):
             return (True, get_stop_time(fetched_datum["timestamp"]))
+    return (False,)
 	
 if __name__ == '__main__':
     if stop_bot()[0]:
