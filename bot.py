@@ -62,7 +62,7 @@ def stop_bot() -> tuple[bool, str]: # need time, wd geohash, content # convert t
 	
 if __name__ == '__main__':
     if stop_bot()[0]:
-        stop_message = f"Ang bot ay pansamantalang hindi makakapagpadala ng mga mensahe hanggang {stop_bot()[1]} ... I-extend? send .stop\n\nPara sa karagdang impormasyon pumunta sa #wd1 geohash channel"
+        stop_message = f"Ang bot ay pansamantalang hindi makakapagpadala ng mga mensahe sa #wd hanggang {stop_bot()[1]} ... I-extend? send .stop\n\nPara sa karagdang impormasyon pumunta sa #wd1 geohash channel"
         bot_response_stopped = Bot.main(sub_geohash=True)
         logger.info(f"[STOPPED] Bot's response: {bot_response_stopped}")
         send_stopped_response = Sender().send(

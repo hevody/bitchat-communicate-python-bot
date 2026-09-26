@@ -578,7 +578,7 @@ class Bot:
 
 	def stop_feature_message(self):
 		WRAP_WIDTH = 20
-		header_message = "Pansamantalang ihinto ang bot? ⛔\n"
+		header_message = "Pansamantalang ihinto ang bot sa #wd? ⛔\n"
 		body_message_list = [[".stop", textwrap.fill("Ihinto ang bot sa loob ng isang oras", width=WRAP_WIDTH)],
 		                     [".override", textwrap.fill("Huwag pansininin ang naunang .stop na command", WRAP_WIDTH)]]
 
